@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ember Case Study &mdash; Kym Primrose</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script>
+  (function() {
+    var stored = localStorage.getItem('ember-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+  })();
+</script>
+<style>
+/* =============================================
+   PAGE LAYOUT
+   ============================================= */
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 72px 24px 120px;
+}
+
+.page-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800; line-height: 1.08;
+  letter-spacing: -.03em; color: var(--text-1);
+  margin-bottom: 20px;
+}
+.page-title .accent { color: var(--accent); }
+
+.page-intro {
+  font-size: 1.0625rem; color: var(--text-2);
+  line-height: 1.75; max-width: 58ch;
+  border-left: 2px solid var(--green);
+  padding-left: 20px;
+  margin-bottom: 2rem;
+}
+
+.page-meta {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 72px; padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+}
+.meta-tag {
+  font-size: .6875rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 5px 12px; border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  transition: border-color 400ms ease;
+}
+.meta-tag.green {
+  background: var(--green-tint);
+  border-color: rgba(109,179,154,.2);
+  color: var(--green);
+}
+[data-theme="light"] .meta-tag.green {
+  border-color: rgba(58,107,90,.2);
+}
+
+/* =============================================
+   SECTION STRUCTURE
+   ============================================= */
+.case-section {
+  margin-bottom: 80px;
+}
+
+.section-number {
+  font-size: .625rem; font-weight: 800;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-number::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border);
+}
+
+.section-title {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 800; letter-spacing: -.02em;
+  line-height: 1.15; color: var(--text-1);
+  margin-bottom: 20px;
+}
+.section-title .accent { color: var(--accent); }
+
+.section-lead {
+  font-size: 1rem; color: var(--text-2);
+  line-height: 1.78; margin-bottom: 28px;
+  max-width: 60ch;
+}
+
+/* =============================================
+   FINDING CARDS — for the problem section
+   ============================================= */
+.findings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.finding-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+  transition: background 400ms ease, border-color 400ms ease;
+}
+[data-theme="dark"]  .finding-card { background: #222222; }
+[data-theme="light"] .finding-card { background: #F7F7F7; }
+
+
+.finding-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  display: grid; place-items: center;
+  position: relative; overflow: hidden;
+  transition: background 400ms ease;
+}
+
+.finding-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.finding-card-body { padding: 18px 20px 20px; }
+
+.finding-label {
+  font-size: .625rem; font-weight: 800;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 8px;
+}
+.finding-title {
+  font-size: .9375rem; font-weight: 700;
+  color: var(--text-1); line-height: 1.3; margin-bottom: 6px;
+}
+.finding-body {
+  font-size: .8125rem; color: var(--text-2); line-height: 1.65;
+}
+
+/* Contrast swatch pair */
+.contrast-pair {
+  display: flex; gap: 6px; margin-top: 10px; align-items: center;
+}
+.swatch {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.06);
+  display: grid; place-items: center;
+  font-size: .5rem; font-weight: 800; letter-spacing: .04em;
+}
+.swatch-label {
+  font-size: .625rem; color: var(--text-3);
+  font-family: monospace; letter-spacing: .04em;
+}
+.fail-badge {
+  display: inline-block;
+  font-size: .5625rem; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 100px;
+  margin-left: auto;
+}
+.fail-badge.fail { background: rgba(176,48,64,.15); color: #E07070; border: 1px solid rgba(176,48,64,.2); }
+.fail-badge.warn { background: rgba(138,90,0,.12); color: #C49A3A; border: 1px solid rgba(138,90,0,.2); }
+
+/* =============================================
+   ACTION LIST
+   ============================================= */
+.action-list {
+  display: flex; flex-direction: column; gap: 2px;
+  margin-top: 28px;
+}
+
+.action-item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 16px;
+  align-items: start;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.action-item:last-child { border-bottom: none; }
+
+.action-num {
+  font-size: .625rem; font-weight: 800;
+  letter-spacing: .1em; color: var(--accent);
+  padding-top: 3px;
+}
+
+.action-body {}
+.action-title {
+  font-size: .9375rem; font-weight: 700;
+  color: var(--text-1); margin-bottom: 5px; line-height: 1.3;
+}
+.action-desc {
+  font-size: .875rem; color: var(--text-2); line-height: 1.65;
+}
+
+/* =============================================
+   RESULT ITEMS
+   ============================================= */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.result-card {
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px;
+  transition: background 400ms ease;
+}
+[data-theme="dark"]  .result-card { background: #222222; }
+[data-theme="light"] .result-card { background: #F7F7F7; }
+
+.result-icon { color: var(--green); }
+
+.result-icon svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.result-title {
+  font-size: .9375rem; font-weight: 700;
+  color: var(--text-1); margin-bottom: 6px; line-height: 1.3;
+}
+.result-body {
+  font-size: .8125rem; color: var(--text-2); line-height: 1.65;
+}
+.result-stat {
+  display: inline-block; margin-top: 10px;
+  font-size: .6875rem; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--green); padding: 3px 10px;
+  border-radius: 100px; border: 1px solid rgba(109,179,154,.2);
+  background: var(--green-tint);
+}
+[data-theme="light"] .result-stat { border-color: rgba(58,107,90,.2); }
+
+/* =============================================
+   CLOSING STATEMENT
+   ============================================= */
+.closing {
+  margin-bottom: 4rem; padding-bottom: 48px; 
+}
+.closing-text {
+  font-size: 1.125rem; color: var(--text-2);
+  line-height: 1.75; max-width: 56ch;
+  margin-bottom: 28px;
+}
+.closing-text strong { color: var(--text-1); font-weight: 700; }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 640px) {
+  .page { padding: 48px 20px 80px; }
+  .findings { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: 1fr; }
+  .nav { padding: 0 20px; }
+  .nav-title { display: none; }
+  
+  .btn-primary,
+
+/* =============================================
+   CLOSING — two column cards
+   ============================================= */
+.closing-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.closing-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 250ms ease, box-shadow 250ms ease, background 400ms ease;
+}
+[data-theme="dark"]  .closing-card { background: #222222; }
+[data-theme="light"] .closing-card { background: #F7F7F7; }
+.closing-card:hover {
+  border-color: var(--green);
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  transform: translateY(-2px);
+}
+.closing-card:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.closing-card-label {
+  font-size: .6875rem; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--green);
+}
+.closing-card-title {
+  font-size: 1rem; font-weight: 700;
+  color: var(--text-1); line-height: 1.3;
+}
+.closing-card-desc {
+  font-size: .875rem; color: var(--text-2);
+  line-height: 1.65; flex: 1;
+}
+.closing-card-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .8125rem; font-weight: 700;
+  color: var(--link); margin-top: 4px;
+  transition: color 150ms ease;
+}
+.closing-card:hover .closing-card-cta { color: var(--link-hover); }
+.closing-card:hover .closing-card-cta svg { transform: translateX(3px); }
+.closing-card-cta svg { transition: transform 150ms ease; }
+
+.btn-primary, .closing-cards {
+        gap: 16px;
+        margin-top: 1rem;
+    }
+
+.btn-ghost, .closing-cards {
+        gap: 16px;
+        margin-top: 1rem;
+    }
+
+@media (max-width: 640px) {
+  .closing-cards { display: flex; }
+}
+
+
+/* =============================================
+   THEME UI SCREENSHOT
+   ============================================= */
+.ui-preview {
+  margin-bottom: 4rem;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: border-color 400ms ease;
+}
+
+.ui-preview img {
+  width: 100%;
+  display: block;
+  transition: opacity 300ms ease;
+}
+
+.ui-preview .preview-dark  { display: block; }
+.ui-preview .preview-light { display: none; }
+
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<!-- NAV -->
+<header>
+  <nav class="nav" aria-label="Page navigation">
+    <a href="index.html" class="nav-back" aria-label="Back to portfolio home">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <span class="nav-title">Ember &mdash; Case Study</span>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeToggle" aria-label="Switch to light mode">
+        <div class="theme-icon" aria-hidden="true">
+          <svg class="t-ico t-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="t-ico t-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <span class="theme-text" id="themeLabel">Dark</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- MAIN -->
+<main id="main">
+<div class="page">
+
+  <!-- INTRO -->
+  <div class="page-kicker" aria-label="Case study">Case study</div>
+  <h1 class="page-title">Ember.<br><span class="accent">A considered redesign.</span></h1>
+
+  <p class="page-intro">
+   Embers product is strong. The mission is clear - lead the way in all-electric intercity bus travel. From initial glance it’s hard to see why a designer is needed. <br><br> This case study will demonstrate two things - what a designer like me will bring to your team and how I use AI to quickly pull together and realise concepts. <br><br> We will look at where digital experience fell short of both, and document the design decisions taken to bring them into alignment.
+  </p>
+
+  <div class="page-meta" role="list" aria-label="Project scope">
+    <span class="meta-tag green" role="listitem">Accessibility</span>
+    <span class="meta-tag green" role="listitem">Brand refinement</span>
+    <span class="meta-tag green" role="listitem">Design system</span>
+    <span class="meta-tag" role="listitem">Light &amp; dark mode</span>
+    <span class="meta-tag" role="listitem">WCAG 2.2</span>
+    <span class="meta-tag" role="listitem">Montserrat</span>
+  </div>
+
+<!-- EVIDENCE -->
+  <div class="closing">
+
+    <!-- THEME-AWARE UI PREVIEW -->
+    <div class="ui-preview" aria-label="Ember homepage redesign — switches with theme">
+      <img
+        id="previewDark"
+        class="preview-dark"
+        src="assets/ui-preview-dark.jpg"
+        alt="Ember homepage redesign — dark mode">
+      <img
+        id="previewLight"
+        class="preview-light"
+        src="assets/ui-preview-light.jpg"
+        alt="Ember homepage redesign — light mode"
+        style="display:none;">
+    </div>
+
+    <p class="closing-text">
+      This case study was built as part of an application for the designer role at Ember. The redesigned homepage and full design system are both live and explorable below.
+    </p>
+
+    <div class="btn-group">
+      <a href="ember-homepage.html" class="btn-primary closing-cards">
+        View the redesign
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="ember-design-system.html" class="btn-primary closing-cards">
+        View the design system
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="index.html" class="btn-ghost closing-cards">Back to portfolio</a>
+    </div>
+  </div>
+
+  <!-- ========================================
+       01 THE PROBLEM
+       ======================================== -->
+  <section class="case-section" aria-labelledby="problem-heading">
+    <p class="section-number">01</p>
+    <h2 class="section-title" id="problem-heading">
+      The product was good.<br>The <span class="accent">experience</span> had gaps.
+    </h2>
+    <p class="section-lead">
+      Ember's existing site was functional and broadly on-brand. Nothing was broken. But a closer look revealed a pattern of small, compounding decisions that quietly undermined both accessibility and trust. The visual language was inconsistent enough to introduce friction &mdash; not enough to stop users, but enough to stop the brand from landing with the confidence it deserved.
+    </p>
+    <p class="section-lead">
+      Four distinct issues were identified across colour, typography, navigation and interaction design.
+    </p>
+
+    <div class="findings" role="list">
+
+      <div class="finding-card" role="listitem">
+        <div class="finding-card-image" aria-label="Description of what the screenshot shows">
+          <img src="assets/cta-contrast.jpg" alt="Image of poor contrast primary button">
+        </div>
+        <div class="finding-card-body">
+          <p class="finding-label">Colour contrast</p>
+          <p class="finding-title">Primary green fails on white</p>
+          <p class="finding-body">The brand's primary green (#4F9179) was used for interactive text and buttons against white backgrounds, returning a contrast ratio of 3.1:1 &mdash; below the WCAG 2.2 AA threshold of 4.5:1 for normal-weight text.</p>
+          <div class="contrast-pair" aria-label="Failing colour combination">
+            <div class="swatch" style="background:#4F9179; color:#fff;">Aa</div>
+            <div class="swatch" style="background:#FEFFFE; color:#4F9179; border:1px solid #eee;">Aa</div>
+            <span class="swatch-label">#4F9179 / #FEFFFE</span>
+            <span class="fail-badge fail">3.1:1 Fail</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="finding-card" role="listitem">
+        <div class="finding-card-image" aria-label="Description of what the screenshot shows">
+          <img src="assets/negative-energy.jpg" alt="Image of negative energy colour usage">
+        </div>
+        <div class="finding-card-body">
+          <p class="finding-label">Colour association</p>
+          <p class="finding-title">Red used to emphasise, not to warn</p>
+          <p class="finding-body">A strong red (#D34559) was applied as an emphasis colour throughout the site &mdash; used to draw attention to key claims and features. Red carries near-universal negative connotations across both cultural contexts and UI convention. For a brand built on optimism and sustainability, this was a subconscious mismatch.</p>
+        </div>
+      </div>
+
+      <div class="finding-card" role="listitem">
+        <div class="finding-card-image" aria-label="Description of what the screenshot shows">
+          <img src="assets/nav.jpg" alt="Image showing no indication of selected page">
+        </div>
+        <div class="finding-card-body">
+          <p class="finding-label">Navigation</p>
+          <p class="finding-title">No active page indicator</p>
+          <p class="finding-body">The main navigation provided no visual indication of the user's current location within the site. This fails WCAG 2.2 Success Criterion 2.4.8 (Location) and removes a basic orientation cue that users &mdash; particularly those with cognitive or visual impairments &mdash; rely on.</p>
+        </div>
+      </div>
+
+      <div class="finding-card" role="listitem">
+        <div class="finding-card-image" aria-label="Description of what the screenshot shows">
+          <img src="assets/btn-styles.jpg" alt="Image of multiple inconsistant button styles">
+        </div>
+        <div class="finding-card-body">
+          <p class="finding-label">Interaction design</p>
+          <p class="finding-title">Inconsistent hover and link states</p>
+          <p class="finding-body">Button styles, hover states, link hover behaviours and focus indicators were applied inconsistently across the site &mdash; mixing underline, opacity shift and colour change with no unifying logic. Focus-visible states were insufficient for keyboard navigation compliance under WCAG 2.2 SC 2.4.11.</p>
+          <div class="contrast-pair" aria-hidden="true">
+            <span class="fail-badge warn" style="margin-left:0;">SC 2.4.11</span>
+            <span class="fail-badge warn">SC 2.4.8</span>
+            <span class="fail-badge fail">SC 1.4.3</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================
+       02 THE ACTIONS
+       ======================================== -->
+  <section class="case-section" aria-labelledby="actions-heading">
+    <p class="section-number">02</p>
+    <h2 class="section-title" id="actions-heading">
+      What was <span class="accent">done</span> about it.
+    </h2>
+    <p class="section-lead">
+      Rather than a rebrand, the approach was one of refinement. Ember's visual identity was preserved and strengthened. The work focused on closing the gap between what the brand said and what the interface communicated.
+    </p>
+
+    <div class="action-list" role="list">
+
+      <div class="action-item" role="listitem">
+        <span class="action-num">01</span>
+        <div class="action-body">
+          <p class="action-title">A full colour system was built from the existing palette</p>
+          <p class="action-desc">The original brand green (#4F9179) was retained as a mid-weight decorative token but replaced in interactive roles by a darkened accessible variant (#3A6B5A in light mode, #6DB39A in dark), both passing WCAG 2.2 AA. Contrast ratios were documented for every colour pairing across both modes. The red emphasis colour was removed entirely; emphasis is now carried by more natural yellow or blue tones, which reinforce the brand's environmental position rather than contradicting it.</p>
+        </div>
+      </div>
+
+      <div class="action-item" role="listitem">
+        <span class="action-num">02</span>
+        <div class="action-body">
+          <p class="action-title">Dark and light modes were designed as equals, not afterthoughts</p>
+          <p class="action-desc">Both modes were built simultaneously from the same token structure, ensuring no element was designed for one context and assumed to work in another. In dark mode, a cream-yellow accent (#E8D87A) was introduced as a warm, energetic counterpoint to the green system &mdash; specifically for the hero and high-emphasis moments. In light mode, a medium-blue (#3579AD) takes the same role, chosen for its calm authority and strong contrast at 4.6:1 on white. System preference is respected on first load; the user's choice is persisted.</p>
+        </div>
+      </div>
+
+      <div class="action-item" role="listitem">
+        <span class="action-num">03</span>
+        <div class="action-body">
+          <p class="action-title">A consistent interaction vocabulary was defined</p>
+          <p class="action-desc">A single set of interaction rules was established and applied universally: colour-shift on hover, border highlight on focus, scale on active. All interactive elements &mdash; buttons, links, nav items, inputs &mdash; now share the same behavioural logic. Focus-visible states use a 2px green outline with sufficient offset to meet WCAG 2.2 SC 2.4.11. The active navigation state was introduced as a 2px underline in the brand green, alongside <code>aria-current="page"</code> for screen reader support.</p>
+        </div>
+      </div>
+
+      <div class="action-item" role="listitem">
+        <span class="action-num">04</span>
+        <div class="action-body">
+          <p class="action-title">A semantic type scale was codified</p>
+          <p class="action-desc">Montserrat was retained &mdash; it's the right choice for the brand. What was missing was discipline in its application. A six-step scale was defined (display, h1, h2, h3, body, caption), each with fixed size, weight, line-height and letter-spacing values. Text colour roles were named semantically (text-primary, text-secondary, text-tertiary, text-interactive) and mapped to accessible values in both modes, removing the inconsistent colour application that had introduced confusion in the original.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================
+       03 THE RESULT
+       ======================================== -->
+  <section class="case-section" aria-labelledby="results-heading">
+    <p class="section-number">03</p>
+    <h2 class="section-title" id="results-heading">
+      What the changes <span class="accent">resolve</span>.
+    </h2>
+    <p class="section-lead">
+      The outcome isn't a different brand &mdash; it's the same brand, held to a higher standard. Every decision taken is documentable, reversible, and grounded in either accessibility compliance or brand coherence. The result is a system that could be handed to any designer or developer and extended with confidence.
+    </p>
+
+    <div class="results-grid" role="list">
+
+      <div class="result-card" role="listitem">
+        <div class="result-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.46447 3.46447C2 4.92893 2 7.28595 2 12C2 16.714 2 19.0711 3.46447 20.5355C4.92893 22 7.28595 22 12 22C16.714 22 19.0711 22 20.5355 20.5355C22 19.0711 22 16.714 22 12C22 7.28595 22 4.92893 20.5355 3.46447C19.0711 2 16.714 2 12 2C7.28595 2 4.92893 2 3.46447 3.46447ZM10.5431 7.51724C10.8288 7.2173 10.8172 6.74256 10.5172 6.4569C10.2173 6.17123 9.74256 6.18281 9.4569 6.48276L7.14286 8.9125L6.5431 8.28276C6.25744 7.98281 5.78271 7.97123 5.48276 8.2569C5.18281 8.54256 5.17123 9.01729 5.4569 9.31724L6.59976 10.5172C6.74131 10.6659 6.9376 10.75 7.14286 10.75C7.34812 10.75 7.5444 10.6659 7.68596 10.5172L10.5431 7.51724ZM13 8.25C12.5858 8.25 12.25 8.58579 12.25 9C12.25 9.41422 12.5858 9.75 13 9.75H18C18.4142 9.75 18.75 9.41422 18.75 9C18.75 8.58579 18.4142 8.25 18 8.25H13ZM10.5431 14.5172C10.8288 14.2173 10.8172 13.7426 10.5172 13.4569C10.2173 13.1712 9.74256 13.1828 9.4569 13.4828L7.14286 15.9125L6.5431 15.2828C6.25744 14.9828 5.78271 14.9712 5.48276 15.2569C5.18281 15.5426 5.17123 16.0173 5.4569 16.3172L6.59976 17.5172C6.74131 17.6659 6.9376 17.75 7.14286 17.75C7.34812 17.75 7.5444 17.6659 7.68596 17.5172L10.5431 14.5172ZM13 15.25C12.5858 15.25 12.25 15.5858 12.25 16C12.25 16.4142 12.5858 16.75 13 16.75H18C18.4142 16.75 18.75 16.4142 18.75 16C18.75 15.5858 18.4142 15.25 18 15.25H13Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <p class="result-title">Contrast failures resolved</p>
+        <p class="result-body">All interactive text, buttons and link colours now meet WCAG 2.2 AA as a minimum. The primary accessible green achieves 7.2:1 in light mode (AAA) and 4.6:1 in dark mode (AA). No colour pairing in the system falls below its required threshold.</p>
+        <span class="result-stat">WCAG 2.2 AA across all modes</span>
+      </div>
+
+      <div class="result-card" role="listitem">
+        <div class="result-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.0009 16.5V19.5C22.0009 20.88 20.8809 22 19.5009 22H12.3609C11.4709 22 11.0309 20.93 11.6509 20.3L17.5209 14.3C17.7109 14.11 17.9709 14 18.2309 14H19.5009C20.8809 14 22.0009 15.12 22.0009 16.5Z" fill="currentColor"/>
+            <path d="M18.3702 11.2895L15.6602 13.9995L13.2002 16.4495C12.5702 17.0795 11.4902 16.6395 11.4902 15.7495C11.4902 12.5395 11.4902 7.25953 11.4902 7.25953C11.4902 6.98953 11.6002 6.73953 11.7802 6.54953L12.7002 5.62953C13.6802 4.64953 15.2602 4.64953 16.2402 5.62953L18.3602 7.74953C19.3502 8.72953 19.3502 10.3095 18.3702 11.2895Z" fill="currentColor"/>
+            <path d="M7.5 2H4.5C3 2 2 3 2 4.5V18C2 18.27 2.03 18.54 2.08 18.8C2.11 18.93 2.14 19.06 2.18 19.19C2.23 19.34 2.28 19.49 2.34 19.63C2.35 19.64 2.35 19.65 2.35 19.65C2.36 19.65 2.36 19.65 2.35 19.66C2.49 19.94 2.65 20.21 2.84 20.46C2.95 20.59 3.06 20.71 3.17 20.83C3.28 20.95 3.4 21.05 3.53 21.15L3.54 21.16C3.79 21.35 4.06 21.51 4.34 21.65C4.35 21.64 4.35 21.64 4.35 21.65C4.5 21.72 4.65 21.77 4.81 21.82C4.94 21.86 5.07 21.89 5.2 21.92C5.46 21.97 5.73 22 6 22C6.41 22 6.83 21.94 7.22 21.81C7.33 21.77 7.44 21.73 7.55 21.68C7.9 21.54 8.24 21.34 8.54 21.08C8.63 21.01 8.73 20.92 8.82 20.83L8.86 20.79C9.56 20.07 10 19.08 10 18V4.5C10 3 9 2 7.5 2ZM6 19.5C5.17 19.5 4.5 18.83 4.5 18C4.5 17.17 5.17 16.5 6 16.5C6.83 16.5 7.5 17.17 7.5 18C7.5 18.83 6.83 19.5 6 19.5Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <p class="result-title">Colour association corrected</p>
+        <p class="result-body">Red is now reserved exclusively for semantic error states. Emphasis is carried by the light green and cream-yellow &mdash; colours that carry forward movement and optimism rather than warning. The subconscious message now matches the brand's intent.</p>
+        <span class="result-stat">Zero negative colour associations</span>
+      </div>
+
+      <div class="result-card" role="listitem">
+        <div class="result-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(42.666667, 42.666667)">
+              <path d="M213.333333,0 C331.15408,0 426.666667,95.5125867 426.666667,213.333333 C426.666667,331.15408 331.15408,426.666667 213.333333,426.666667 C95.5125867,426.666667 0,331.15408 0,213.333333 C0,95.5125867 95.5125867,0 213.333333,0 Z M234.666667,341.333333 L192,341.333333 L192,384 L234.666667,384 L234.666667,341.333333 Z M320,106.666667 L181.333333,181.333333 L106.666667,320 L245.333333,245.333333 L320,106.666667 Z M213.333333,192 C225.115408,192 234.666667,201.551259 234.666667,213.333333 C234.666667,225.115408 225.115408,234.666667 213.333333,234.666667 C201.551259,234.666667 192,225.115408 192,213.333333 C192,201.551259 201.551259,192 213.333333,192 Z M384,192 L341.333333,192 L341.333333,234.666667 L384,234.666667 L384,192 Z M85.3333333,192 L42.6666667,192 L42.6666667,234.666667 L85.3333333,234.666667 L85.3333333,192 Z M234.666667,42.6666667 L192,42.6666667 L192,85.3333333 L234.666667,85.3333333 L234.666667,42.6666667 Z" fill="currentColor"/>
+            </g>
+          </svg>
+        </div>
+        <p class="result-title">Navigation orientation restored</p>
+        <p class="result-body">The active page state is now visually clear (green underline, colour shift) and programmatically declared (<code>aria-current="page"</code>). Users always know where they are. WCAG 2.2 SC 2.4.8 is met in both modes.</p>
+        <span class="result-stat">SC 2.4.8 compliant</span>
+      </div>
+
+      <div class="result-card" role="listitem">
+        <div class="result-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor" d="M459.576,99.307H52.423C23.524,99.307,0,122.837,0,151.736v192.879c0,37.536,30.537,68.078,68.068,68.078h375.862c37.532,0,68.069-30.542,68.069-68.078V151.736C512,122.837,488.475,99.307,459.576,99.307z M485.515,344.615c0,22.934-18.655,41.589-41.584,41.589H68.068c-22.929,0-41.584-18.655-41.584-41.589V151.736c0-14.306,11.638-25.938,25.938-25.938h407.154c14.301,0,25.938,11.633,25.938,25.938V344.615z"/>
+            <rect fill="currentColor" x="189.792" y="233.929" width="44.138" height="44.142"/>
+            <rect fill="currentColor" x="256.002" y="233.929" width="44.134" height="44.142"/>
+            <rect fill="currentColor" x="322.207" y="233.929" width="44.138" height="44.142"/>
+            <rect fill="currentColor" x="410.484" y="300.139" width="44.134" height="44.134"/>
+            <rect fill="currentColor" x="189.792" y="167.729" width="44.138" height="44.134"/>
+            <rect fill="currentColor" x="123.587" y="233.929" width="44.138" height="44.142"/>
+            <rect fill="currentColor" x="123.587" y="167.729" width="44.138" height="44.134"/>
+            <rect fill="currentColor" x="57.382" y="300.139" width="44.134" height="44.134"/>
+            <rect fill="currentColor" x="57.382" y="233.929" width="44.134" height="44.142"/>
+            <rect fill="currentColor" x="57.382" y="167.729" width="44.134" height="44.134"/>
+            <rect fill="currentColor" x="256.002" y="167.729" width="44.134" height="44.134"/>
+            <rect fill="currentColor" x="322.207" y="167.729" width="44.138" height="44.134"/>
+            <rect fill="currentColor" x="123.587" y="300.139" width="264.825" height="44.134"/>
+            <rect fill="currentColor" x="388.412" y="167.729" width="66.205" height="110.343"/>
+          </svg>
+        </div>
+        <p class="result-title">Keyboard navigation compliant</p>
+        <p class="result-body">Focus-visible states are consistent, visually distinct, and meet the minimum WCAG 2.2 SC 2.4.11 target area and contrast requirements. All interactive elements are reachable and operable by keyboard alone.</p>
+        <span class="result-stat">SC 2.4.11 compliant</span>
+      </div>
+
+      <div class="result-card" role="listitem">
+        <div class="result-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor" d="M214.2,319.991L214.2,319.991L214.2,319.991C197.34,301.585,232.293,180.319,27.075,97.569c-33.75,6.125-71.688,176.672,127.719,228.844c59.609,29.797,50.219,79.469,50.219,107.078h38.344c0,0-15.688-87.578,54.375-119.672c47.672-21.828,179.328-28.828,214.265-225.547C445.387,49.757,208.825,124.835,214.2,319.991z M165.84,286.804c-4.063,2.813-9.641,1.797-12.453-2.266c-19.516-28.266-73.484-93.484-97.344-117.281c-3.5-3.484-3.5-9.156,0-12.641c3.484-3.5,9.156-3.5,12.641,0c25.344,25.391,78.688,89.859,99.422,119.734C170.918,278.413,169.903,283.991,165.84,286.804z M415.965,141.663c-65.25,41.234-118.578,109.844-142.625,147.109c-2.672,4.141-8.219,5.328-12.359,2.656c-4.141-2.688-5.328-8.219-2.641-12.375c25.141-38.766,79.141-108.766,148.047-152.5c4.172-2.656,9.688-1.406,12.344,2.766C421.372,133.491,420.137,139.007,415.965,141.663z"/>
+          </svg>
+        </div>
+        <p class="result-title">A living design system</p>
+        <p class="result-body">The colour, type and spacing decisions are documented as a token-based system &mdash; not a static mockup. Both modes are built from the same structure, making future changes consistent by default rather than by effort.</p>
+        <span class="result-stat">Token-based, dual-mode</span>
+      </div>
+
+      <div class="result-card" role="listitem">
+        <div class="result-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="149" cy="85"  r="74" fill="#4F9179"/>
+            <circle cx="224" cy="214" r="74" fill="#8AB5A6"/>
+            <circle cx="75"  cy="214" r="74" fill="#C6DAD3"/>
+          </svg>
+        </div>
+        <p class="result-title">Brand coherence strengthened</p>
+        <p class="result-body">The refined palette, consistent interaction language and purposeful use of accent colours produce an experience that better reflects Ember's position &mdash; progressive, trustworthy, and built around the passenger. The brand now feels as considered as the product.</p>
+        <span class="result-stat">On-brand, consistant</span>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</main>
+
+<script>
+  var html = document.documentElement;
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('ember-theme', theme);
+    var isDark = theme === 'dark';
+    document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
+    document.getElementById('themeToggle').setAttribute('aria-label',
+      isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    // Swap UI preview image
+    var darkImg  = document.getElementById('previewDark');
+    var lightImg = document.getElementById('previewLight');
+    if (darkImg && lightImg) {
+      darkImg.style.display  = isDark ? 'block' : 'none';
+      lightImg.style.display = isDark ? 'none'  : 'block';
+    }
+  }
+  var stored = localStorage.getItem('ember-theme');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+  document.getElementById('themeToggle').addEventListener('click', function() {
+    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+</script>
+
+</body>
+</html>

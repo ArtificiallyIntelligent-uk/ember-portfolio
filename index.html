@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kym Primrose — Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script>
+  (function() {
+    var stored = localStorage.getItem('ember-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+  })();
+</script>
+<style>
+/* =============================================
+   NAV
+   ============================================= */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 60px; display: flex; align-items: center;
+  padding: 0 32px; justify-content: space-between;
+}
+[data-theme="dark"]  .nav { background: rgba(26,26,26,0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+[data-theme="light"] .nav { background: rgba(254,254,254,0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+
+.nav-name {
+  font-size: .8125rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-2); text-decoration: none;
+  transition: color 150ms ease;
+}
+.nav-name:hover { color: var(--green); }
+
+.nav-right { display: flex; align-items: center; gap: 10px; }
+
+.nav-pill {
+  font-size: .75rem; font-weight: 600;
+  color: var(--text-3); letter-spacing: .04em;
+  border: 1px solid var(--border); border-radius: 100px;
+  padding: 7px 14px; text-decoration: none;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.nav-pill:hover { color: var(--green); border-color: var(--green); }
+
+.theme-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: none; border: 1px solid var(--border);
+  border-radius: 100px; padding: 6px 10px 6px 6px;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: border-color 150ms ease;
+}
+.theme-btn:hover { border-color: var(--green); }
+.theme-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+.theme-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  transition: background 400ms ease;
+}
+[data-theme="dark"]  .theme-icon { background: #2A2A2A; }
+[data-theme="light"] .theme-icon { background: #EBF0EE; }
+
+.t-ico { position: absolute; width: 12px; height: 12px; transition: opacity 200ms ease, transform 200ms ease; }
+.t-sun  { color: #8A7A55; }
+.t-moon { color: #5E8070; }
+[data-theme="dark"]  .t-sun  { opacity: 0; transform: scale(.5) rotate(90deg); }
+[data-theme="dark"]  .t-moon { opacity: 1; transform: scale(1); }
+[data-theme="light"] .t-sun  { opacity: 1; transform: scale(1); }
+[data-theme="light"] .t-moon { opacity: 0; transform: scale(.5) rotate(-90deg); }
+
+.theme-text {
+  font-size: .6875rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--text-3);
+}
+
+/* =============================================
+   HERO — full viewport
+   ============================================= */
+.hero {
+  min-height: 100svh;
+  overflow: visible;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 88px 24px 56px;
+  position: relative; overflow: hidden;
+}
+
+/* Ambient glow */
+.hero-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(680px, 90vw); height: min(680px, 90vw);
+  border-radius: 50%; pointer-events: none;
+}
+[data-theme="dark"]  .hero-glow { background: radial-gradient(circle, rgba(109,179,154,0.055) 0%, transparent 68%); }
+[data-theme="light"] .hero-glow { background: radial-gradient(circle, rgba(58,107,90,0.04) 0%, transparent 68%); }
+
+/* =============================================
+   INTRO TEXT
+   ============================================= */
+.intro {
+  text-align: center; margin-bottom: 60px;
+  position: relative; z-index: 2;
+  max-width: 540px;
+}
+
+.intro-kicker {
+  font-size: .6875rem; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.intro-kicker::before, .intro-kicker::after {
+  content: ''; display: block;
+  width: 18px; height: 1.5px;
+  background: var(--green); border-radius: 1px;
+}
+
+.intro-headline {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800; line-height: 1.1;
+  letter-spacing: -.03em; color: var(--text-1);
+  margin-bottom: 14px;
+}
+.intro-headline .accent { color: var(--accent); }
+
+.intro-sub {
+  font-size: .9375rem; color: var(--text-2);
+  line-height: 1.72; margin-bottom: 24px;
+  max-width: 42ch; margin-left: auto; margin-right: auto;
+}
+
+.intro-hint {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .6875rem; font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--text-3);
+}
+.intro-hint svg { color: var(--accent); opacity: .85; flex-shrink: 0; width: 16px; height: 16px; }
+
+/* =============================================
+   CIRCLE NAVIGATION
+   ============================================= */
+.circle-nav {
+  position: relative; z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(500px, 90vw);
+}
+
+.circle-row-top {
+  display: flex;
+  justify-content: center;
+}
+
+.circle-row-bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.circle-top   {}
+.circle-left  {}
+.circle-right {}
+
+.circle-link {
+  display: block; position: relative;
+  border-radius: 50%; cursor: pointer;
+  text-decoration: none;
+  width: clamp(138px, 25vw, 172px);
+  height: clamp(138px, 25vw, 172px);
+  border: 1.5px solid var(--circle-border);
+  overflow: hidden;
+  transition: transform 350ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 350ms cubic-bezier(0.16,1,0.3,1),
+              border-color 350ms ease;
+}
+[data-theme="dark"]  .circle-link { background: #222222; }
+[data-theme="light"] .circle-link { background: #F7F7F7; }
+
+.circle-link:hover {
+  transform: scale(1.06) translateY(-4px);
+  border-color: var(--green);
+  box-shadow: 0 0 0 5px var(--circle-glow), 0 20px 48px rgba(0,0,0,.3);
+}
+[data-theme="light"] .circle-link:hover {
+  box-shadow: 0 0 0 5px var(--circle-glow), 0 12px 28px rgba(0,0,0,.1);
+}
+.circle-link:focus-visible {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 5px var(--circle-glow), 0 0 0 7px var(--green);
+}
+
+.circle-top   { grid-area: top; }
+.circle-left  { grid-area: left; }
+.circle-right { grid-area: right; }
+
+.circle-inner {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+
+/* Hover label overlay */
+.circle-label {
+  position: absolute; inset: 0; border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  opacity: 0; transition: opacity 220ms ease; z-index: 2;
+}
+[data-theme="dark"]  .circle-label { background: rgba(22,22,22,0.88); }
+[data-theme="light"] .circle-label { background: rgba(247,247,247,0.9); }
+.circle-link:hover .circle-label { opacity: 1; }
+
+.circle-label-name {
+  font-size: .6875rem; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--green);
+}
+.circle-label-cta {
+  font-size: .5625rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ---- ABOUT — photo circle ---- */
+.circle-about .circle-inner {
+  transition: background 400ms ease;
+}
+.circle-about .circle-inner { background: none; }
+
+.initials {
+  font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+  font-weight: 800; letter-spacing: -.04em;
+  line-height: 1; user-select: none;
+  transition: color 400ms ease;
+}
+[data-theme="dark"]  .initials { color: #C6DAD3; }
+[data-theme="light"] .initials { color: #3A6B5A; }
+
+/* ---- PROCESS ---- */
+.process-bars {
+  display: flex; flex-direction: column; gap: 6px;
+  align-items: flex-start;
+}
+.p-bar {
+  height: 3px; border-radius: 2px;
+  background: var(--green); transition: width 300ms ease, opacity 300ms ease;
+}
+.p-bar:nth-child(1) { width: 34px; opacity: .55; }
+.p-bar:nth-child(2) { width: 22px; opacity: .3; }
+.p-bar:nth-child(3) { width: 28px; opacity: .2; }
+.circle-link:hover .p-bar { opacity: .85; }
+.circle-link:hover .p-bar:nth-child(2) { width: 34px; opacity: .65; }
+.circle-link:hover .p-bar:nth-child(3) { width: 34px; opacity: .45; }
+
+/* ---- CASE STUDY ---- */
+.case-inner { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.case-wordmark {
+  font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+  font-weight: 800; letter-spacing: -.03em;
+  color: var(--green); line-height: 1;
+}
+.case-sub {
+  font-size: .5rem; font-weight: 800;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* =============================================
+   SCROLL INDICATOR
+   ============================================= */
+.scroll-hint {
+  position: absolute; bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 7px; z-index: 2;
+}
+.scroll-label {
+  font-size: .5625rem; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text-3);
+}
+.scroll-line {
+  width: 1px; height: 28px;
+  background: linear-gradient(to bottom, var(--text-3), transparent);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: .25; }
+  50%       { opacity: .7; }
+}
+
+/* =============================================
+   ENTRANCE ANIMATIONS
+   ============================================= */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.intro        { animation: fadeUp 650ms cubic-bezier(0.16,1,0.3,1) 100ms both; }
+.circle-top   { animation: popIn  550ms cubic-bezier(0.16,1,0.3,1) 320ms both; }
+.circle-left  { animation: popIn  550ms cubic-bezier(0.16,1,0.3,1) 430ms both; }
+.circle-right { animation: popIn  550ms cubic-bezier(0.16,1,0.3,1) 540ms both; }
+.scroll-hint  { animation: fadeIn 600ms ease 800ms both; }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 480px) {
+  .nav { padding: 0 20px; }
+  .nav-pill { display: none; }
+  .hero { padding: 80px 20px 48px; }
+  .intro { margin-bottom: 44px; }
+  .intro-headline { font-size: clamp(1.5rem, 7vw, 2rem); }
+  .circle-nav { gap: 12px; width: 100%; }
+  .circle-link {
+    width: clamp(108px, 27vw, 138px);
+    height: clamp(108px, 27vw, 138px);
+  }
+  .initials { font-size: 1.5rem; }
+  .case-wordmark { font-size: 1rem; }
+}
+
+@media (max-width: 360px) {
+  .circle-link { width: 100px; height: 100px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  }
+
+}
+@media (max-width: 640px) {
+  .mark {
+  position: absolute;
+  top: -140px; right: -140px;
+  width: 610px; height: 610px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .45;
+}
+.mark svg { width: 100%; height: 100%; display: block; }
+
+@media (max-width: 640px) {
+  .mark { width: 360px; height: 360px; top: -60px; right: -80px; opacity: .3; }
+}
+}
+
+</style>
+</head>
+<body>
+
+<a class="skip" href="#nav-circles">Skip to navigation</a>
+
+<!-- NAV -->
+<header>
+  <nav class="nav" aria-label="Site navigation">
+    <a href="portfolio-index.html" class="nav-name" aria-label="Home — Kym Primrose">Kym Primrose</a>
+    <div class="nav-right">
+      <a href="ember-homepage.html" class="nav-pill" target="_blank" rel="noopener" aria-label="View Ember redesign">ember.to ↗</a>
+      <button class="theme-btn" id="themeToggle" aria-label="Switch to light mode">
+        <div class="theme-icon" aria-hidden="true">
+          <svg class="t-ico t-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="t-ico t-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <span class="theme-text" id="themeLabel">Dark</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<main>
+  <section class="hero" aria-labelledby="intro-heading">
+
+    <!-- Animated Ember mark -->
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <g class="spinner">
+          <circle cx="149" cy="85"  r="74" fill="#4F9179"></circle>
+          <circle cx="224" cy="214" r="74" fill="#8AB5A6"></circle>
+          <circle cx="75"  cy="214" r="74" fill="#C6DAD3"></circle>
+        </g>
+      </svg>
+    </div>
+
+    <div class="hero-glow" aria-hidden="true"></div>
+
+    <!-- INTRO -->
+    <div class="intro">
+      <p class="intro-kicker">Ember Application Portfolio</p>
+      <h1 class="intro-headline" id="intro-heading">
+        Kym Primrose.<br>
+        <span class="accent">Experience Designer.</span>
+      </h1>
+      <p class="intro-sub">
+        Welcome to my application for your AI Native Designer role. I have put together this site using a combination of AI, design thinking and more traditional design to showcase what I can achieve in roughly 48hrs.
+      </p>
+       <p class="intro-sub">
+        Please take your time to learn about me and visit the case study to see the process in action.
+      </p>
+      <p class="intro-hint" role="note" aria-label="Navigation instruction">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Hover a circle &mdash; click to enter
+      </p>
+    </div>
+
+    <!-- CIRCLES -->
+    <nav id="nav-circles" class="circle-nav" aria-label="Portfolio sections">
+
+      <div class="circle-row-top">
+        <!-- About me — top -->
+        <a href="about.html" class="circle-link circle-about circle-top"
+           aria-label="About me — who I am, how I think, and how I work">
+          <div class="circle-inner" aria-hidden="true">
+            <img src="assets/profile.jpg" alt="Kym Primrose" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+          </div>
+          <div class="circle-label" aria-hidden="true">
+            <span class="circle-label-name">About me</span>
+            <span class="circle-label-cta">Enter &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="circle-row-bottom">
+        <!-- Process — bottom left -->
+        <a href="process.html" class="circle-link circle-process circle-left"
+           aria-label="My process — from brief to delivery, and where AI fits in">
+          <div class="circle-inner" aria-hidden="true">
+            <div class="process-bars" aria-hidden="true">
+              <div class="p-bar"></div>
+              <div class="p-bar"></div>
+              <div class="p-bar"></div>
+            </div>
+          </div>
+          <div class="circle-label" aria-hidden="true">
+            <span class="circle-label-name">Process</span>
+            <span class="circle-label-cta">Enter &rarr;</span>
+          </div>
+        </a>
+
+        <!-- Case study — bottom right -->
+        <a href="case-study.html" class="circle-link circle-case circle-right"
+           aria-label="Ember case study — brand audit, accessibility review, and live redesign">
+          <div class="circle-inner" aria-hidden="true">
+            <div class="case-inner">
+              <span class="case-wordmark">ember</span>
+              <span class="case-sub">Case study</span>
+            </div>
+          </div>
+          <div class="circle-label" aria-hidden="true">
+            <span class="circle-label-name">Case study</span>
+            <span class="circle-label-cta">Enter &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+    </nav>
+
+    <!-- SCROLL HINT 
+    <div class="scroll-hint" aria-hidden="true">
+      <span class="scroll-label">Scroll</span>
+      <div class="scroll-line"></div>
+    </div> -->
+
+  </section>
+</main>
+
+<script>
+  var html = document.documentElement;
+
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('ember-theme', theme);
+    var isDark = theme === 'dark';
+    document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
+    document.getElementById('themeToggle').setAttribute('aria-label',
+      isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
+  var stored = localStorage.getItem('ember-theme');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+
+  document.getElementById('themeToggle').addEventListener('click', function() {
+    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+</script>
+
+</body>
+</html>

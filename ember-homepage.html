@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ember - Electric bus across Scotland</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  (function() {
+    var stored = localStorage.getItem('ember-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+  })();
+</script>
+<style>
+
+/* =============================================
+   DARK TOKENS
+   ============================================= */
+[data-theme="dark"] {
+  --bg:             #1A1A1A;
+  --bg-raised:      #222222;
+  --bg-overlay:     #2A2A2A;
+  --border:         #363636;
+
+  --green:          #6DB39A;
+  --green-hover:    #89B5A6;
+  --green-tint:     rgba(109,179,154,0.09);
+  --green-on:       #1A1A1A;
+
+  --accent:         #E8D87A;
+  --accent-hover:   #D4C45E;
+
+  --text-1:         #EBF0EE;
+  --text-2:         #B0BAB5;
+  --text-3:         #99A39F;
+
+  --link:           #89B5A6;
+  --link-hover:     #C6DAD3;
+}
+
+/* =============================================
+   LIGHT TOKENS
+   ============================================= */
+[data-theme="light"] {
+  --bg:             #FEFEFE;
+  --bg-raised:      #F7F7F7;
+  --bg-overlay:     #EBF0EE;
+  --border:         #CFD9D4;
+
+  --green:          #3A6B5A;
+  --green-hover:    #2D5446;
+  --green-tint:     #EAF3EF;
+  --green-on:       #FEFEFE;
+
+  --accent:         #3579AD;
+  --accent-hover:   #2C6598;
+
+  --text-1:         #1C1F1E;
+  --text-2:         #485250;
+  --text-3:         #6A716E;
+
+  --link:           #3A6B5A;
+  --link-hover:     #2D5446;
+}
+
+/* =============================================
+   SHARED TOKENS (not mode-dependent)
+   ============================================= */
+:root {
+  --nav-h:      68px;
+  --max-w:      1120px;
+  --r-sm:       4px;
+  --r-md:       8px;
+  --r-lg:       14px;
+  --r-xl:       20px;
+  --r-pill:     100px;
+}
+
+/* =============================================
+   RESET
+   ============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+a { text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+/* =============================================
+   BACKGROUNDS — set directly on data-theme,
+   no variable indirection, so transitions fire
+   ============================================= */
+[data-theme="dark"]  { background: #1A1A1A; color: #EBF0EE; }
+[data-theme="light"] { background: #FEFEFE; color: #1C1F1E; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  transition: background 400ms ease, color 400ms ease;
+}
+
+/* Raised surface — used for nav, cards, alt sections, footer */
+.bg-raised {
+  transition: background 400ms ease;
+}
+[data-theme="dark"]  .bg-raised { background: #222222; }
+[data-theme="light"] .bg-raised { background: #F7F7F7; }
+
+/* Overlay surface — inputs, hover states */
+[data-theme="dark"]  .bg-overlay { background: #2A2A2A; }
+[data-theme="light"] .bg-overlay { background: #EBF0EE; }
+
+/* =============================================
+   SKIP LINK
+   ============================================= */
+.skip {
+  position: fixed; top: -100%; left: 16px; z-index: 9999;
+  background: var(--green); color: var(--green-on);
+  padding: 12px 20px; border-radius: var(--r-md);
+  font-size: .875rem; font-weight: 600;
+  transition: top 150ms ease;
+}
+.skip:focus { top: 16px; }
+
+/* =============================================
+   NAV
+   ============================================= */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  height: var(--nav-h);
+  border-bottom: 1px solid var(--border);
+  transition: background 400ms ease, border-color 400ms ease;
+}
+.nav-inner {
+  max-width: var(--max-w); margin: 0 auto;
+  height: 100%; padding: 0 24px;
+  display: flex; align-items: center; gap: 4px;
+}
+.nav-logo {
+  font-size: 1.25rem; font-weight: 800; letter-spacing: -.03em;
+  color: var(--text-1);
+  margin-right: 24px; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: default; user-select: none;
+}
+
+.nav-links { display: flex; align-items: center; gap: 2px; flex: 1; }
+.nav-link {
+  font-size: .8125rem; font-weight: 500; color: var(--text-2);
+  padding: 8px 12px; border-radius: var(--r-md);
+  text-decoration: none; white-space: nowrap; position: relative;
+  transition: color 150ms ease, background 150ms ease;
+}
+.nav-link:hover { color: var(--text-1); background: var(--bg-overlay); }
+.nav-link.active { color: var(--green); }
+.nav-link.active::after {
+  content: ''; position: absolute; bottom: -1px; left: 12px; right: 12px;
+  height: 2px; background: var(--green); border-radius: 2px 2px 0 0;
+}
+.nav-link:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: var(--r-md); }
+
+.nav-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+.theme-toggle {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); border-radius: var(--r-pill);
+  padding: 5px 6px 5px 12px; cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: border-color 150ms ease, background 400ms ease;
+}
+[data-theme="dark"]  .theme-toggle { background: #242424; }
+[data-theme="light"] .theme-toggle { background: #EBF0EE; }
+.theme-toggle:hover { border-color: var(--green); }
+.theme-toggle:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+.toggle-label {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-3); user-select: none;
+}
+.toggle-knob {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  position: relative; overflow: hidden;
+  transition: background 400ms ease;
+}
+[data-theme="dark"]  .toggle-knob { background: #2A2A2A; }
+[data-theme="light"] .toggle-knob { background: #EBF0EE; }
+
+.t-icon {
+  position: absolute; width: 15px; height: 15px;
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+.t-sun  { color: #8A7A55; }
+[data-theme="dark"]  .t-moon { color: #5E8070; }
+[data-theme="light"] .t-moon { color: #5A7A6E; }
+[data-theme="dark"]  .t-sun  { opacity: 0; transform: scale(.5) rotate(90deg); }
+[data-theme="dark"]  .t-moon { opacity: 1; transform: scale(1); }
+[data-theme="light"] .t-sun  { opacity: 1; transform: scale(1); }
+[data-theme="light"] .t-moon { opacity: 0; transform: scale(.5) rotate(-90deg); }
+
+.btn-nav {
+  font-family: 'Montserrat', sans-serif; font-size: .8125rem; font-weight: 700;
+  background: var(--green); color: var(--green-on);
+  border: none; border-radius: var(--r-pill);
+  padding: 10px 20px; cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+.btn-nav:hover { background: var(--green-hover); box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.btn-nav:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.nav-burger {
+  display: none; flex-direction: column; gap: 5px;
+  width: 36px; height: 36px; align-items: center; justify-content: center;
+  background: none; border: 1px solid var(--border);
+  border-radius: var(--r-md); cursor: pointer; margin-left: auto;
+  transition: border-color 150ms ease;
+}
+.nav-burger:hover { border-color: var(--green); }
+.burger-bar { width: 18px; height: 2px; background: var(--text-2); border-radius: 1px; }
+
+.nav-drawer {
+  display: none; flex-direction: column; gap: 4px;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px 20px;
+  transition: background 400ms ease;
+}
+.nav-drawer.open { display: flex; }
+[data-theme="dark"]  .nav-drawer { background: #222222; }
+[data-theme="light"] .nav-drawer { background: #F7F7F7; }
+.nav-drawer .nav-link { font-size: .9375rem; padding: 12px 14px; }
+
+.drawer-theme {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border); margin-top: 4px;
+}
+.drawer-theme-label { font-size: .875rem; color: var(--text-2); }
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn-primary {
+  font-family: 'Montserrat', sans-serif; font-size: .875rem;
+  font-weight: 700; letter-spacing: .02em;
+  background: var(--green); color: var(--green-on);
+  border: none; border-radius: var(--r-pill);
+  padding: 14px 28px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+.btn-primary:hover { background: var(--green-hover); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.22); }
+.btn-primary:active { transform: none; }
+.btn-primary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.btn-secondary {
+  font-family: 'Montserrat', sans-serif; font-size: .875rem;
+  font-weight: 600; letter-spacing: .02em;
+  background: transparent; color: var(--link);
+  border: 1.5px solid var(--border); border-radius: var(--r-pill);
+  padding: 14px 28px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+.btn-secondary:hover { border-color: var(--green); background: var(--green-tint); color: var(--link-hover); transform: translateY(-1px); }
+.btn-secondary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+/* =============================================
+   HERO
+   ============================================= */
+.hero {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 72px 24px 64px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 48px; align-items: center;
+  min-height: calc(88vh - var(--nav-h));
+  position: relative; z-index: 1;
+}
+
+.hero-eyebrow {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--green); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before {
+  content: ''; display: block;
+  width: 24px; height: 2px; background: var(--green); border-radius: 1px;
+}
+.hero-headline {
+  font-size: clamp(2.2rem, 4.2vw, 3.5rem); font-weight: 800;
+  line-height: 1.08; letter-spacing: -.03em; color: var(--text-1); margin-bottom: 22px;
+}
+.hero-headline .accent-word { color: var(--accent); display: block; }
+.hero-sub { font-size: 1.0625rem; color: var(--text-2); line-height: 1.72; margin-bottom: 36px; max-width: 44ch; }
+.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 44px; }
+
+
+/* Search widget */
+.search-widget {
+  border: 1px solid var(--border); border-radius: var(--r-xl); padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  transition: background 400ms ease, border-color 400ms ease;
+  position: relative;
+  isolation: isolate;
+}
+[data-theme="dark"]  .search-widget { background: #222222; }
+[data-theme="light"] .search-widget { background: #F7F7F7; }
+
+.search-label {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 16px;
+}
+.search-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.search-grid.full { grid-template-columns: 1fr; margin-bottom: 0; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field-label {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.field-input {
+  border: 1.5px solid var(--border); border-radius: var(--r-md);
+  padding: 11px 14px; font-family: 'Montserrat', sans-serif;
+  font-size: .875rem; font-weight: 500; color: var(--text-1); width: 100%;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 400ms ease, color 400ms ease;
+}
+[data-theme="dark"]  .field-input { background: #2A2A2A; }
+[data-theme="light"] .field-input { background: #EBF0EE; }
+.field-input::placeholder { color: var(--text-3); font-weight: 400; }
+.field-input:hover { border-color: var(--green); }
+.field-input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(109,179,154,.15); }
+[data-theme="light"] .field-input:focus { box-shadow: 0 0 0 3px rgba(58,107,90,.1); }
+
+.search-btn {
+  width: 100%; margin-top: 12px;
+  font-family: 'Montserrat', sans-serif; font-size: .9375rem; font-weight: 700;
+  background: var(--green); color: var(--green-on);
+  border: none; border-radius: var(--r-md); padding: 15px; cursor: pointer;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+.search-btn:hover { background: var(--green-hover); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.search-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+/* =============================================
+   SECTIONS
+   ============================================= */
+.section-base {
+  transition: background 400ms ease;
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="dark"]  .section-base { background: #1A1A1A; }
+[data-theme="light"] .section-base { background: #FEFEFE; }
+
+.section-raised {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transition: background 400ms ease, border-color 400ms ease;
+}
+[data-theme="dark"]  .section-raised { background: #222222; }
+[data-theme="light"] .section-raised { background: #F7F7F7; }
+
+.section-inner { max-width: var(--max-w); margin: 0 auto; padding: 80px 24px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+
+.eyebrow {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--green); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.eyebrow::before { content: ''; display: block; width: 20px; height: 2px; background: var(--green); border-radius: 1px; }
+.eyebrow.centered { justify-content: center; }
+.eyebrow.centered::before { display: none; }
+
+.section-h {
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 800;
+  line-height: 1.15; letter-spacing: -.025em; color: var(--text-1); margin-bottom: 18px;
+}
+.section-p { font-size: 1rem; color: var(--text-2); line-height: 1.75; max-width: 52ch; }
+.section-p + .section-p { margin-top: 14px; }
+
+/* Image panel */
+.img-panel { border-radius: var(--r-xl); overflow: hidden; }
+.img-panel-inner img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+}
+[data-theme="dark"]  .img-panel-inner { background: #2A2A2A; }
+[data-theme="light"] .img-panel-inner { background: #EBF0EE; }
+
+}
+[data-theme="light"] .img-panel-inner::after {
+  background: linear-gradient(135deg, rgba(58,107,90,.1) 0%, rgba(198,218,211,.2) 100%);
+}
+.img-panel-label {
+  font-size: .6875rem; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text-3); position: relative; z-index: 1;
+}
+
+/* =============================================
+   FEATURES
+   ============================================= */
+.features-wrap { max-width: var(--max-w); margin: 0 auto; padding: 80px 24px; }
+.features-header { text-align: center; max-width: 540px; margin: 0 auto 52px; }
+.features-header .section-h { margin-bottom: 0; }
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+.feature-card {
+  border: 1px solid var(--border); border-radius: var(--r-lg); padding: 26px;
+  transition: border-color 250ms ease, box-shadow 250ms ease, background 400ms ease;
+}
+[data-theme="dark"]  .feature-card { background: #222222; }
+[data-theme="light"] .feature-card { background: #F7F7F7; }
+.feature-card:hover { border-color: var(--green); box-shadow: 0 8px 32px rgba(0,0,0,.18); }
+
+.feature-icon {
+  color: var(--green);
+}
+.feature-icon svg {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.feature-title { font-size: .9375rem; font-weight: 700; color: var(--text-1); margin-bottom: 8px; line-height: 1.3; }
+.feature-body { font-size: .875rem; color: var(--text-2); line-height: 1.65; }
+
+.features-footer { text-align: center; margin-top: 36px; }
+.text-link {
+  font-size: .875rem; font-weight: 600; color: var(--link);
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: rgba(109,179,154,.35);
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+[data-theme="light"] .text-link { text-decoration-color: rgba(58,107,90,.3); }
+.text-link:hover { color: var(--link-hover); text-decoration-color: currentColor; }
+
+/* =============================================
+   MAP
+   ============================================= */
+.map-panel {
+  border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 4/3;
+  border: 1px solid var(--border); transition: background 400ms ease;
+}
+[data-theme="dark"]  .map-panel { background: #2A2A2A; }
+[data-theme="light"] .map-panel { background: #EBF0EE; }
+
+.map-bg { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+.map-grid {
+  position: absolute; inset: 0; opacity: .05;
+  background-image: linear-gradient(var(--text-1) 1px, transparent 1px), linear-gradient(90deg, var(--text-1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.map-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .875rem; font-weight: 600; color: var(--link);
+  text-decoration: none; margin-top: 26px; transition: color 150ms ease;
+}
+.map-cta:hover { color: var(--link-hover); }
+.map-cta:hover .arrow { transform: translateX(4px); }
+.arrow { transition: transform 150ms ease; }
+
+/* =============================================
+   FOOTER
+   ============================================= */
+footer {
+  border-top: 1px solid var(--border);
+  transition: background 400ms ease, border-color 400ms ease;
+}
+[data-theme="dark"]  footer { background: #222222; }
+[data-theme="light"] footer { background: #F7F7F7; }
+
+.footer-inner { max-width: var(--max-w); margin: 0 auto; padding: 52px 24px 40px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 44px; }
+.footer-logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -.03em; color: var(--text-1); display: block; margin-bottom: 10px; }
+.footer-tagline { font-size: .875rem; color: var(--text-2); line-height: 1.65; max-width: 28ch; }
+.footer-col-title { font-size: .6875rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a { font-size: .875rem; color: var(--text-2); text-decoration: none; transition: color 150ms ease; }
+.footer-links a:hover { color: var(--text-1); }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+.footer-legal { font-size: .75rem; color: var(--text-3); }
+.footer-social { display: flex; gap: 10px; }
+.social-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--border); display: grid; place-items: center;
+  font-size: .75rem; font-weight: 700; color: var(--text-2); text-decoration: none;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+[data-theme="dark"]  .social-btn { background: #2A2A2A; }
+[data-theme="light"] .social-btn { background: #EBF0EE; }
+.social-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-tint); }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 960px) {
+  .hero { grid-template-columns: 1fr; min-height: auto; padding: 56px 24px 48px; gap: 40px; }
+  .hero-sub { max-width: 100%; }
+  .two-col { grid-template-columns: 1fr; gap: 36px; }
+  .img-panel { aspect-ratio: 16/9; }
+  .map-panel { aspect-ratio: 16/9; }
+  .map-col-text { order: 2; }
+  .map-col-visual { order: 1; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+
+@media (max-width: 640px) {
+  .nav-links, .nav-right .btn-nav, .nav-right .theme-toggle { display: none; }
+  .nav-burger { display: flex; }
+  .hero { padding: 40px 20px 36px; gap: 28px; }
+  .hero-headline { font-size: clamp(1.9rem, 8vw, 2.5rem); }
+  .stat-row { gap: 20px; flex-wrap: wrap; }
+  .hero-ctas { flex-direction: column; }
+  .btn-primary, .btn-secondary { justify-content: center; width: 100%; }
+  .section-inner { padding: 52px 20px; }
+  .features-wrap { padding: 52px 20px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+  .footer-inner { padding: 36px 20px 28px; }
+}
+
+@media (min-width: 1200px) {
+  .hero { padding: 88px 32px 72px; }
+  .section-inner { padding: 96px 32px; }
+  .features-wrap { padding: 96px 32px; }
+}
+
+/* =============================================
+   MARK ANIMATION — HERO
+   ============================================= */
+.hero-mark {
+  position: absolute;
+  top: -100px; right: -120px;
+  width: 485px; height: 485px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .3;
+}
+.hero-mark svg { width: 100%; height: 100%; display: block; }
+
+.hero-mark .spinner {
+  transform-origin: 149.33px 171px;
+  animation: markSpin 56s linear infinite;
+}
+@keyframes markSpin { to { transform: rotate(360deg); } }
+
+.hero-mark::before {
+  content: '';
+  position: absolute; inset: 8%;
+  background: radial-gradient(closest-side, rgba(109,179,154,.15), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-mark .spinner { animation: none; }
+}
+
+@media (max-width: 960px) {
+  .hero-mark { display: none; }
+}
+
+
+/* =============================================
+   STATS SECTION
+   ============================================= */
+.section-stats {
+  transition: background 400ms ease, border-color 400ms ease;
+}
+
+.stats-inner {
+  max-width: var(--max-w);
+  margin: 0 auto 4rem auto;
+  padding: 40px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 48px;
+  text-align: center;
+  flex: 1;
+}
+
+.stat-value {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.stat-divider {
+  width: 1px;
+  height: 48px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .stats-inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+  .stat-item {
+    padding: 20px 8px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-divider { display: none; }
+  .stat-value { font-size: 1.5rem; }
+  .stat-label { font-size: .5625rem; letter-spacing: .04em; }
+}
+
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<!-- NAV -->
+<header>
+  <nav class="nav bg-raised" aria-label="Main navigation">
+    <div class="nav-inner">
+      <span class="nav-logo" aria-label="Ember">
+        <svg width="22" height="22" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="149" cy="85"  r="74" fill="#4F9179"/>
+          <circle cx="224" cy="214" r="74" fill="#8AB5A6"/>
+          <circle cx="75"  cy="214" r="74" fill="#C6DAD3"/>
+        </svg>
+        ember
+      </span>
+      <div class="nav-links">
+        <a href="#" class="nav-link active" aria-current="page">Home</a>
+        <a href="#" class="nav-link">Live Map</a>
+        <a href="#" class="nav-link">FAQ</a>
+        <a href="#" class="nav-link">Hire</a>
+        <a href="#" class="nav-link">Contact</a>
+      </div>
+      <div class="nav-right">
+        <button class="theme-toggle" id="themeToggle" aria-label="Switch to light mode">
+          <span class="toggle-label" id="toggleLabel">Dark</span>
+          <div class="toggle-knob" aria-hidden="true">
+            <svg class="t-icon t-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="t-icon t-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+        </button>
+        <a href="#" class="btn-nav">Book tickets</a>
+      </div>
+      <button class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+        <span class="burger-bar"></span>
+        <span class="burger-bar"></span>
+        <span class="burger-bar"></span>
+      </button>
+    </div>
+    <div class="nav-drawer" id="navDrawer" aria-hidden="true">
+      <a href="#" class="nav-link active" aria-current="page">Home</a>
+      <a href="#" class="nav-link">Live Map</a>
+      <a href="#" class="nav-link">FAQ</a>
+      <a href="#" class="nav-link">Hire</a>
+      <a href="#" class="nav-link">Contact</a>
+      <a href="#" class="btn-primary" style="margin-top:8px;justify-content:center;">Book tickets</a>
+      <div class="drawer-theme">
+        <button class="theme-toggle" id="themeToggleMobile" aria-label="Switch theme">
+          <span class="toggle-label" id="toggleLabelMobile">Dark</span>
+          <div class="toggle-knob" aria-hidden="true">
+            <svg class="t-icon t-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="t-icon t-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+        </button>
+        <span class="drawer-theme-label">Toggle theme</span>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO — sits on base canvas -->
+  <section class="section-base" aria-labelledby="hero-heading">
+
+    <!-- Animated Ember mark — outside hero grid so max-width does not clip it -->
+    <div class="hero-mark" aria-hidden="true">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <g class="spinner">
+          <circle cx="149" cy="85"  r="74" fill="#4F9179"></circle>
+          <circle cx="224" cy="214" r="74" fill="#8AB5A6"></circle>
+          <circle cx="75"  cy="214" r="74" fill="#C6DAD3"></circle>
+        </g>
+      </svg>
+    </div>
+
+    <div class="hero">
+
+      <div>
+        <p class="hero-eyebrow">Scotland's electric bus network</p>
+        <h1 class="hero-headline" id="hero-heading">
+          Fast, comfortable<br>travel by
+          <span class="accent-word">electric bus.</span>
+        </h1>
+        <p class="hero-sub">Frequent services across Scotland. Low fares, live tracking and zero emissions on every journey.</p>
+        <div class="hero-ctas">
+          <a href="#" class="btn-primary">
+            Book tickets
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="#" class="btn-secondary">
+            Track buses
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </a>
+        </div>
+
+      </div>
+      <div class="search-widget" role="search" aria-label="Journey search">
+        <p class="search-label">Plan your journey</p>
+        <div class="search-grid">
+          <div class="field"><label class="field-label" for="s-from">From</label><input class="field-input" id="s-from" type="text" placeholder="e.g. Edinburgh" autocomplete="off"></div>
+          <div class="field"><label class="field-label" for="s-to">To</label><input class="field-input" id="s-to" type="text" placeholder="e.g. Glasgow" autocomplete="off"></div>
+        </div>
+        <div class="search-grid">
+          <div class="field"><label class="field-label" for="s-out">Outbound</label><input class="field-input" id="s-out" type="text" placeholder="Select date"></div>
+          <div class="field"><label class="field-label" for="s-ret">Return</label><input class="field-input" id="s-ret" type="text" placeholder="No return"></div>
+        </div>
+        <div class="search-grid full">
+          <div class="field"><label class="field-label" for="s-pax">Passengers</label><input class="field-input" id="s-pax" type="text" placeholder="1 adult"></div>
+        </div>
+        <button class="search-btn">Search journeys</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS — between hero and planet -->
+  <section class="section-stats" aria-label="Key facts">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Exhaust emissions</span>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-item">
+        <span class="stat-value">5G</span>
+        <span class="stat-label">Wi-Fi on every seat</span>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-item">
+        <span class="stat-value">Free</span>
+        <span class="stat-label">Cancellation, always</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANET — raised surface -->
+  <section class="section-raised" aria-labelledby="planet-heading">
+    <div class="section-inner">
+      <div class="two-col">
+        <div>
+          <p class="eyebrow">Why Ember</p>
+          <h2 class="section-h" id="planet-heading">Better for the planet,<br>better for you</h2>
+          <p class="section-p">Travel with Ember and you'll be on the UK's first all-electric, intercity bus service. Zero exhaust emissions means it's good for the environment and you'll also enjoy a smoother, more peaceful journey.</p>
+          <p class="section-p">No engine rumble. No fumes. Just clean, comfortable travel across Scotland.</p>
+        </div>
+        <div class="img-panel" aria-label="Ember bus in the Scottish highlands">
+          <div class="img-panel-inner">
+          <img src="assets/ember-bus.jpg" alt="Ember electric bus in the Scottish highlands">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES — base canvas -->
+  <section class="section-base" aria-labelledby="features-heading">
+    <div class="features-wrap">
+      <div class="features-header">
+        <p class="eyebrow centered">Every detail considered</p>
+        <h2 class="section-h" id="features-heading">Designed around passengers</h2>
+      </div>
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill="currentColor" d="M9.66703 6.566C10.2725 6.566 10.8532 6.32547 11.2814 5.89732C11.7095 5.46918 11.95 4.88849 11.95 4.283C11.95 3.67751 11.7095 3.09682 11.2814 2.66868C10.8532 2.24053 10.2725 2 9.66703 2C9.06154 2 8.48085 2.24053 8.05271 2.66868C7.62456 3.09682 7.38403 3.67751 7.38403 4.283C7.38403 4.88849 7.62456 5.46918 8.05271 5.89732C8.48085 6.32547 9.06154 6.566 9.66703 6.566ZM18.826 22C18.5663 22.0001 18.3121 21.9252 18.094 21.7844C17.8758 21.6435 17.7029 21.4427 17.596 21.206C17.0232 19.9341 16.4234 18.6745 15.797 17.428C15.433 16.709 15.122 16.592 14.937 16.576H13.501C10.734 16.852 9.84203 15.089 9.58403 14.314L9.53003 14.085L8.78503 9.048C8.73265 8.6938 8.82312 8.33331 9.03654 8.04581C9.24996 7.75832 9.56884 7.56738 9.92303 7.515C10.2772 7.46262 10.6377 7.55309 10.9252 7.76651C11.2127 7.97992 11.4037 8.2988 11.456 8.653L12.181 13.56C12.267 13.77 12.454 13.98 13.282 13.885L13.43 13.877H14.763C14.835 13.873 14.909 13.873 14.984 13.877L15.059 13.88C16.049 13.931 17.299 14.414 18.206 16.21C18.8497 17.4906 19.4665 18.7846 20.056 20.091C20.1497 20.2968 20.1901 20.5228 20.1736 20.7483C20.1571 20.9738 20.0843 21.1916 19.9618 21.3816C19.8392 21.5716 19.6709 21.7278 19.4723 21.8359C19.2737 21.9439 19.0521 22.0004 18.826 22Z"/>
+              <path fill="currentColor" d="M9.75811 17.8H13.3201C13.8681 17.8 14.2331 18.164 14.2331 18.712C14.2331 19.26 13.8681 19.626 13.3201 19.626H9.75811C8.47911 19.626 7.38411 18.804 7.11011 17.526L5.64811 11.132C5.46611 10.676 5.83111 10.128 6.28811 10.037C6.74411 9.85398 7.29211 10.219 7.38411 10.676L8.84411 17.069C8.93611 17.525 9.30111 17.8 9.75811 17.8Z"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Comfortable seats</h3><p class="feature-body">Lean back in our comfortable seats with extra legroom on every service.</p></article>
+        <article class="feature-card"><div class="feature-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M2.32798 6.69995C7.67398 1.36695 16.326 1.36695 21.672 6.69995C21.7761 6.80408 21.8586 6.9277 21.9149 7.06374C21.9712 7.19978 22.0001 7.34557 22.0001 7.4928C22.0001 7.64003 21.971 7.7858 21.9146 7.92181C21.8582 8.05781 21.7756 8.18137 21.6715 8.28545C21.5673 8.38952 21.4437 8.47206 21.3077 8.52836C21.1717 8.58466 21.0259 8.61361 20.8786 8.61356C20.7314 8.61352 20.5856 8.58447 20.4496 8.52809C20.3136 8.4717 20.1901 8.38908 20.086 8.28495C15.616 3.82695 8.38298 3.82695 3.91398 8.28495C3.70367 8.49526 3.41842 8.61342 3.12098 8.61342C2.82355 8.61342 2.5383 8.49526 2.32798 8.28495C2.11767 8.07463 1.99951 7.78938 1.99951 7.49195C1.99951 7.19451 2.11767 6.91026 2.32798 6.69995Z"/><path fill="currentColor" d="M4.88005 11.705C4.672 11.4972 4.55393 11.216 4.55131 10.9219C4.5487 10.6279 4.66173 10.3445 4.86605 10.133C8.80905 6.20305 15.1881 6.20305 19.1311 10.133C19.3411 10.343 19.4601 10.628 19.4591 10.925V10.951C19.4539 11.17 19.3845 11.3827 19.2597 11.5627C19.1349 11.7427 18.96 11.8821 18.7567 11.9638C18.5535 12.0454 18.3307 12.0656 18.1161 12.022C17.9014 11.9783 17.7043 11.8726 17.5491 11.718C16.076 10.2492 14.0807 9.42442 12.0006 9.42442C9.92037 9.42442 7.92506 10.2492 6.45205 11.718C6.01205 12.143 5.31205 12.138 4.88005 11.705Z"/><path fill="currentColor" d="M14.137 12.031C12.9837 11.6287 11.7404 11.5593 10.5494 11.8308C9.35848 12.1022 8.26806 12.7036 7.40301 13.566C7.29189 13.6683 7.2026 13.7921 7.14052 13.9298C7.07844 14.0676 7.04484 14.2164 7.04174 14.3675C7.03864 14.5185 7.06611 14.6686 7.12249 14.8088C7.17887 14.949 7.26301 15.0763 7.36984 15.1831C7.47667 15.29 7.60399 15.3741 7.74416 15.4305C7.88433 15.4869 8.03444 15.5143 8.18549 15.5112C8.33654 15.5081 8.48541 15.4745 8.62314 15.4125C8.76088 15.3504 8.88465 15.2611 8.98701 15.15C9.75985 14.3825 10.7974 13.9403 11.8863 13.9145C12.9752 13.8886 14.0326 14.281 14.841 15.011C14.867 15.034 14.894 15.055 14.921 15.076C14.952 15.1 14.983 15.124 15.011 15.15C15.1413 15.2802 15.3018 15.3763 15.4781 15.4296C15.6545 15.4829 15.8413 15.4919 16.022 15.4557C16.2026 15.4195 16.3715 15.3392 16.5137 15.222C16.6559 15.1048 16.767 14.9544 16.837 14.784C17.01 14.364 16.914 13.883 16.594 13.562C15.9016 12.8723 15.0614 12.3481 14.137 12.031ZM14.242 19.06C14.242 19.6546 14.0058 20.2248 13.5853 20.6453C13.1649 21.0658 12.5946 21.302 12 21.302C11.4054 21.302 10.8351 21.0658 10.4147 20.6453C9.99422 20.2248 9.75801 19.6546 9.75801 19.06C9.75801 18.4653 9.99422 17.8951 10.4147 17.4746C10.8351 17.0542 11.4054 16.818 12 16.818C12.5946 16.818 13.1649 17.0542 13.5853 17.4746C14.0058 17.8951 14.242 18.4653 14.242 19.06Z"/></svg>
+            </div><h3 class="feature-title">USB and Wi-Fi</h3><p class="feature-body">Charge up with USB points at every seat and enjoy free 5G Wi-Fi throughout your journey.</p></article>
+        <article class="feature-card"><div class="feature-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M5.74996 7.94699C5.74996 7.48699 6.12396 7.11299 6.58396 7.11299H9.91696C10.138 7.11299 10.35 7.2008 10.5063 7.35712C10.6626 7.51343 10.7505 7.72543 10.7505 7.94649C10.7505 8.16755 10.6626 8.37955 10.5063 8.53586C10.35 8.69217 10.138 8.77999 9.91696 8.77999C9.8928 8.78005 9.86903 8.78603 9.84771 8.7974C9.8264 8.80876 9.80819 8.82518 9.79468 8.8452C9.78117 8.86522 9.77276 8.88825 9.7702 8.91226C9.76763 8.93628 9.77098 8.96056 9.77996 8.98299L9.87396 9.21499C9.89446 9.2645 9.93312 9.3043 9.98201 9.32624C10.0309 9.34818 10.0863 9.35059 10.137 9.33299L14.241 7.86999C14.2669 7.86072 14.2906 7.84641 14.311 7.82789C14.3313 7.80937 14.3478 7.787 14.3594 7.76207C14.371 7.73715 14.3776 7.71017 14.3787 7.68269C14.3798 7.65521 14.3755 7.62778 14.366 7.60199L14.299 7.42099C14.2382 7.2564 14.2128 7.08087 14.2244 6.90581C14.236 6.73076 14.2843 6.5601 14.3661 6.40493C14.448 6.24977 14.5616 6.11358 14.6996 6.00522C14.8376 5.89686 14.9968 5.81876 15.167 5.77599L17.293 5.24599C17.4007 5.2145 17.5138 5.2051 17.6253 5.21835C17.7368 5.23161 17.8445 5.26724 17.9419 5.32312C18.0393 5.379 18.1244 5.45397 18.1921 5.54354C18.2598 5.63311 18.3087 5.73543 18.336 5.84437C18.3632 5.95331 18.3681 6.06662 18.3505 6.17752C18.3328 6.28841 18.293 6.3946 18.2333 6.48972C18.1737 6.58485 18.0954 6.66694 18.0032 6.73108C17.9111 6.79522 17.8069 6.84008 17.697 6.86299L16.246 7.22499C16.2176 7.23204 16.191 7.24499 16.1679 7.26302C16.1449 7.28104 16.1259 7.30372 16.1122 7.32958C16.0985 7.35544 16.0904 7.38389 16.0885 7.41308C16.0866 7.44228 16.0908 7.47155 16.101 7.49899L17.151 10.351C17.1674 10.3957 17.1988 10.4335 17.2397 10.4578C17.2807 10.4822 17.3288 10.4918 17.376 10.485C17.527 10.461 17.68 10.449 17.833 10.447C18.8264 10.4427 19.7884 10.7951 20.5439 11.4401C21.2995 12.085 21.7985 12.9798 21.9502 13.9616C22.1019 14.9434 21.8962 15.947 21.3705 16.7899C20.8448 17.6329 20.0341 18.2592 19.0857 18.5549C18.1373 18.8506 17.1143 18.7962 16.2026 18.4014C15.291 18.0067 14.5513 17.2978 14.1181 16.4039C13.6848 15.5099 13.5869 14.4901 13.8419 13.5299C14.097 12.5698 14.6882 11.7331 15.508 11.172C15.5464 11.1459 15.5751 11.1078 15.5896 11.0636C15.6041 11.0195 15.6035 10.9718 15.588 10.928L15.353 10.293C15.3398 10.2579 15.3174 10.2269 15.2882 10.2033C15.259 10.1798 15.2241 10.1645 15.187 10.159C15.1497 10.1535 15.1116 10.1583 15.0768 10.1729C15.0421 10.1876 15.0121 10.2115 14.99 10.242L11.422 15.106C11.3445 15.2115 11.2433 15.2972 11.1266 15.3563C11.0098 15.4153 10.8808 15.4461 10.75 15.446H10.416C10.3692 15.4461 10.3238 15.4619 10.2872 15.4909C10.2505 15.52 10.2247 15.5605 10.214 15.606C10.0277 16.365 9.63181 17.0563 9.07142 17.601C8.51102 18.1457 7.80875 18.5219 7.04478 18.6865C6.28081 18.8511 5.48595 18.7976 4.75095 18.532C4.01596 18.2664 3.37046 17.7995 2.88817 17.1846C2.40587 16.5697 2.10623 15.8315 2.02345 15.0544C1.94066 14.2773 2.07808 13.4926 2.42001 12.7898C2.76194 12.0871 3.29459 11.4947 3.95715 11.0802C4.6197 10.6658 5.38545 10.446 6.16696 10.446C6.76996 10.45 7.36596 10.586 7.90996 10.848C7.99696 10.888 8.09996 10.864 8.15996 10.789L8.45096 10.425C8.47379 10.396 8.48858 10.3615 8.49385 10.325C8.49911 10.2885 8.49467 10.2512 8.48096 10.217L7.95096 8.90999C7.93541 8.87155 7.90873 8.83864 7.87434 8.81548C7.83995 8.79231 7.79942 8.77995 7.75796 8.77999H6.58396C6.47448 8.78012 6.36605 8.75867 6.26487 8.71687C6.16369 8.67507 6.07175 8.61373 5.99429 8.53636C5.91683 8.459 5.85539 8.36713 5.81346 8.266C5.77154 8.16487 5.74996 8.05647 5.74996 7.94699ZM3.68796 15.013C3.77235 15.5331 4.01891 16.0132 4.39245 16.3849C4.76598 16.7565 5.24738 17.0006 5.76791 17.0823C6.28844 17.1641 6.82149 17.0792 7.29094 16.84C7.76038 16.6007 8.14223 16.2192 8.38196 15.75C8.39823 15.7183 8.40609 15.6829 8.40478 15.6473C8.40346 15.6117 8.39302 15.577 8.37444 15.5466C8.35587 15.5162 8.3298 15.491 8.29872 15.4736C8.26764 15.4562 8.2326 15.447 8.19696 15.447H6.16696C5.9459 15.447 5.73389 15.3592 5.57758 15.2029C5.42127 15.0466 5.33346 14.8345 5.33346 14.6135C5.33346 14.3924 5.42127 14.1804 5.57758 14.0241C5.73389 13.8678 5.9459 13.78 6.16696 13.78H8.19696C8.2326 13.78 8.26764 13.7708 8.29872 13.7534C8.3298 13.7359 8.35587 13.7108 8.37444 13.6804C8.39302 13.65 8.40346 13.6153 8.40478 13.5797C8.40609 13.5441 8.39823 13.5087 8.38196 13.477C8.11081 12.9468 7.65931 12.5308 7.10871 12.3038C6.55812 12.0769 5.9446 12.054 5.37862 12.2392C4.81263 12.4244 4.33134 12.8056 4.0214 13.3141C3.71145 13.8226 3.59321 14.4251 3.68796 15.013ZM10.375 13.717L12.655 10.61C12.6806 10.5739 12.6942 10.5307 12.6938 10.4864C12.6933 10.4421 12.6787 10.3992 12.6523 10.3637C12.6258 10.3282 12.5888 10.3021 12.5465 10.289C12.5042 10.2759 12.4588 10.2766 12.417 10.291L10.057 11.131C10.0207 11.1444 9.98887 11.1676 9.96496 11.198L9.45696 11.833C9.428 11.8696 9.41224 11.9148 9.41224 11.9615C9.41224 12.0081 9.428 12.0534 9.45696 12.09C9.82696 12.56 10.091 13.105 10.23 13.687C10.234 13.7018 10.242 13.7152 10.2532 13.7257C10.2644 13.7362 10.2782 13.7434 10.2932 13.7465C10.3083 13.7496 10.3238 13.7485 10.3383 13.7433C10.3527 13.7381 10.3654 13.729 10.375 13.717ZM15.334 14.614C15.334 15.1084 15.4806 15.5918 15.7553 16.0029C16.03 16.414 16.4204 16.7345 16.8772 16.9237C17.3341 17.1129 17.8367 17.1624 18.3217 17.066C18.8066 16.9695 19.2521 16.7314 19.6017 16.3818C19.9514 16.0321 20.1895 15.5867 20.2859 15.1017C20.3824 14.6168 20.3329 14.1141 20.1437 13.6573C19.9544 13.2005 19.634 12.81 19.2229 12.5353C18.8118 12.2606 18.3284 12.114 17.834 12.114C17.8294 12.113 17.8247 12.1135 17.8204 12.1153C17.8161 12.1171 17.8125 12.1201 17.81 12.124C17.8085 12.1271 17.8078 12.1305 17.8078 12.134C17.8078 12.1374 17.8085 12.1409 17.81 12.144L18.613 14.325C18.6895 14.5323 18.6805 14.7614 18.5881 14.9621C18.4956 15.1628 18.3272 15.3185 18.12 15.395C17.9127 15.4715 17.6835 15.4625 17.4829 15.3701C17.2822 15.2776 17.1265 15.1093 17.05 14.902L16.348 12.999C16.3357 12.9657 16.3151 12.9361 16.2881 12.9131C16.2612 12.89 16.2288 12.8742 16.194 12.8672C16.1592 12.8602 16.1232 12.8622 16.0894 12.873C16.0556 12.8838 16.0252 12.9031 16.001 12.929C15.5728 13.3856 15.3344 13.988 15.334 14.614Z"/></svg>
+            </div><h3 class="feature-title">Bikes and wheelchairs</h3><p class="feature-body">Book a wheelchair or bike space for free, even minutes ahead of departure.</p></article>
+        <article class="feature-card"><div class="feature-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M13.0231 14.155C14.9821 14.852 17.2001 15.642 17.2001 18.8V20C17.2001 20.0528 17.1897 20.105 17.1694 20.1538C17.1491 20.2025 17.1194 20.2467 17.0819 20.2839C17.0444 20.3211 17 20.3505 16.9511 20.3704C16.9022 20.3903 16.8499 20.4004 16.7971 20.4H3.19712C3.09103 20.4 2.98929 20.3579 2.91428 20.2828C2.83926 20.2078 2.79712 20.1061 2.79712 20V18.804C2.79712 15.636 5.00712 14.854 6.95712 14.164C7.16112 14.092 7.36512 14.019 7.56712 13.944C7.62012 13.922 7.69912 13.829 7.76012 13.624C7.89482 13.1074 7.87148 12.5622 7.69312 12.059C6.93812 11.229 6.19612 10.196 6.19612 7.636C6.15034 7.11419 6.21549 6.5886 6.38729 6.09375C6.55908 5.59891 6.83364 5.14602 7.19291 4.76483C7.55219 4.38364 7.98806 4.08279 8.47187 3.88203C8.95569 3.68127 9.47651 3.58516 10.0001 3.6C10.5235 3.58519 11.0442 3.68126 11.5278 3.88189C12.0115 4.08253 12.4473 4.3832 12.8065 4.76417C13.1658 5.14513 13.4404 5.59777 13.6123 6.09237C13.7842 6.58698 13.8496 7.11235 13.8041 7.634C13.8041 10.196 13.0621 11.226 12.3041 12.062C12.1281 12.564 12.1052 13.1069 12.2381 13.622C12.2991 13.829 12.3781 13.922 12.4321 13.942L13.0231 14.155Z"/><path fill="currentColor" d="M18.294 15.52L18.746 15.68C20.27 16.22 22 16.837 22 19.318V20C22 20.1061 21.9579 20.2078 21.8829 20.2828C21.8079 20.3579 21.7061 20.4 21.6 20.4H18.59C18.5615 20.4001 18.5333 20.3941 18.5073 20.3824C18.4813 20.3707 18.4581 20.3536 18.4392 20.3322C18.4204 20.3108 18.4063 20.2856 18.398 20.2583C18.3897 20.231 18.3873 20.2023 18.391 20.174C18.399 20.117 18.403 20.058 18.403 20V18.8C18.403 15.118 15.87 13.925 13.923 13.205C13.898 13.1956 13.8751 13.1813 13.8557 13.1629C13.8363 13.1446 13.8208 13.1225 13.81 13.098C13.726 12.9069 13.6568 12.7097 13.603 12.508C13.5952 12.4782 13.5943 12.4471 13.6004 12.4169C13.6065 12.3868 13.6193 12.3584 13.638 12.334C14.5493 11.0963 15.0248 9.59157 14.99 8.055C14.9911 8.01738 15.0027 7.98082 15.0236 7.94951C15.0444 7.9182 15.0737 7.89341 15.108 7.878C15.5144 7.69565 15.9546 7.60092 16.4 7.6C16.8133 7.58797 17.2244 7.66355 17.6063 7.82179C17.9883 7.98003 18.3324 8.21733 18.6161 8.51809C18.8997 8.81885 19.1165 9.17625 19.2521 9.56679C19.3878 9.95733 19.4392 10.3722 19.403 10.784C19.4594 11.409 19.3842 12.0389 19.1824 12.6331C18.9805 13.2273 18.6564 13.7726 18.231 14.234C18.127 14.57 18.111 14.929 18.185 15.274C18.197 15.364 18.234 15.45 18.294 15.52Z"/></svg>
+            </div><h3 class="feature-title">Friendly drivers</h3><p class="feature-body">Whether you need help with bags or directions, our drivers are always happy to help.</p></article>
+        <article class="feature-card"><div class="feature-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2.00001C13.3133 1.99852 14.6139 2.25651 15.8272 2.75916C17.0405 3.2618 18.1425 3.99921 19.07 4.92901C19.1451 4.99848 19.2053 5.08239 19.2472 5.1757C19.289 5.26902 19.3116 5.36983 19.3136 5.47208C19.3156 5.57434 19.2969 5.67595 19.2587 5.77081C19.2205 5.86567 19.1635 5.95185 19.0912 6.02417C19.0188 6.09649 18.9327 6.15347 18.8378 6.19169C18.7429 6.22992 18.6413 6.2486 18.5391 6.24662C18.4368 6.24465 18.336 6.22205 18.2427 6.18019C18.1494 6.13833 18.0655 6.07807 17.996 6.00301C17.2095 5.2144 16.2749 4.58905 15.2459 4.16293C14.2169 3.7368 13.1138 3.51831 12 3.52001C10.3228 3.52001 8.68329 4.01735 7.28876 4.94914C5.89424 5.88094 4.80733 7.20533 4.1655 8.75485C3.52367 10.3044 3.35574 12.0094 3.68294 13.6544C4.01014 15.2993 4.81779 16.8103 6.00373 17.9963C7.18968 19.1822 8.70068 19.9899 10.3456 20.3171C11.9906 20.6443 13.6956 20.4763 15.2452 19.8345C16.7947 19.1927 18.1191 18.1058 19.0509 16.7112C19.9827 15.3167 20.48 13.6772 20.48 12C20.48 11.7984 20.5601 11.6051 20.7026 11.4626C20.8451 11.3201 21.0384 11.24 21.24 11.24C21.4416 11.24 21.6349 11.3201 21.7774 11.4626C21.9199 11.6051 22 11.7984 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.47701 6.477 2.00001 12 2.00001Z"/><path fill="currentColor" d="M12 5.69604C13.694 5.69604 15.283 6.36804 16.457 7.54204C16.5304 7.61194 16.589 7.69579 16.6295 7.78868C16.67 7.88156 16.6915 7.9816 16.6927 8.08292C16.694 8.18423 16.675 8.28477 16.6368 8.37863C16.5986 8.47248 16.5421 8.55775 16.4704 8.62943C16.3988 8.70111 16.3136 8.75775 16.2198 8.79601C16.126 8.83427 16.0255 8.85339 15.9241 8.85223C15.8228 8.85108 15.7228 8.82968 15.6298 8.78929C15.5369 8.7489 15.453 8.69034 15.383 8.61704C14.6005 7.83437 13.5707 7.34726 12.4693 7.23871C11.3678 7.13015 10.2628 7.40687 9.34246 8.02172C8.42215 8.63656 7.7435 9.55149 7.42214 10.6106C7.10078 11.6697 7.1566 12.8075 7.58008 13.8301C8.00356 14.8527 8.7685 15.6968 9.74457 16.2186C10.7206 16.7404 11.8474 16.9076 12.933 16.6918C14.0185 16.476 14.9957 15.8904 15.6979 15.0349C16.4001 14.1794 16.784 13.1068 16.784 12C16.784 11.7985 16.8641 11.6052 17.0066 11.4626C17.1492 11.3201 17.3425 11.24 17.544 11.24C17.7456 11.24 17.9389 11.3201 18.0814 11.4626C18.224 11.6052 18.304 11.7985 18.304 12C18.304 13.2469 17.9343 14.4657 17.2416 15.5024C16.5489 16.539 15.5644 17.347 14.4125 17.8242C13.2606 18.3013 11.9931 18.4262 10.7702 18.1829C9.54734 17.9397 8.42408 17.3393 7.54245 16.4576C6.66082 15.576 6.06042 14.4528 5.81718 13.2299C5.57394 12.007 5.69878 10.7395 6.17591 9.58761C6.65305 8.4357 7.46105 7.45115 8.49773 6.75846C9.53442 6.06577 10.7532 5.69604 12 5.69604Z"/><path fill="currentColor" d="M12.0001 9.39197C11.6576 9.39197 11.3185 9.45943 11.0021 9.59049C10.6856 9.72155 10.3981 9.91366 10.156 10.1558C9.91378 10.398 9.72168 10.6855 9.59061 11.0019C9.45955 11.3183 9.39209 11.6575 9.39209 12C9.39209 12.3425 9.45955 12.6816 9.59061 12.998C9.72168 13.3144 9.91378 13.6019 10.156 13.8441C10.3981 14.0863 10.6856 14.2784 11.0021 14.4094C11.3185 14.5405 11.6576 14.608 12.0001 14.608C12.6918 14.608 13.3551 14.3332 13.8442 13.8441C14.3333 13.355 14.6081 12.6917 14.6081 12C14.6081 11.3083 14.3333 10.6449 13.8442 10.1558C13.3551 9.66674 12.6918 9.39197 12.0001 9.39197ZM12.0001 10.912C12.2886 10.912 12.5654 11.0266 12.7694 11.2306C12.9735 11.4347 13.0881 11.7114 13.0881 12C13.0881 12.2885 12.9735 12.5653 12.7694 12.7693C12.5654 12.9733 12.2886 13.088 12.0001 13.088C11.7115 13.088 11.4348 12.9733 11.2308 12.7693C11.0267 12.5653 10.9121 12.2885 10.9121 12C10.9121 11.7114 11.0267 11.4347 11.2308 11.2306C11.4348 11.0266 11.7115 10.912 12.0001 10.912Z"/><path fill="currentColor" d="M19.2371 3.83502C19.3753 3.70234 19.5584 3.62672 19.7499 3.62329C19.9414 3.61986 20.1272 3.68888 20.27 3.81652C20.4128 3.94417 20.5022 4.12104 20.5202 4.31173C20.5382 4.50243 20.4835 4.69289 20.3671 4.84501L20.2981 4.92201L13.8311 11.232C13.693 11.3647 13.5098 11.4403 13.3183 11.4437C13.1268 11.4472 12.941 11.3782 12.7982 11.2505C12.6554 11.1229 12.566 10.946 12.548 10.7553C12.53 10.5646 12.5847 10.3741 12.7011 10.222L12.7711 10.145L19.2371 3.83502Z"/></svg>
+            </div><h3 class="feature-title">Live tracking</h3><p class="feature-body">Track your bus to the second with our live map, so you're never left waiting around.</p></article>
+        <article class="feature-card"><div class="feature-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2.00001C13.3133 1.99852 14.6139 2.25651 15.8272 2.75916C17.0405 3.2618 18.1425 3.99921 19.07 4.92901C19.1451 4.99848 19.2053 5.08239 19.2472 5.1757C19.289 5.26902 19.3116 5.36983 19.3136 5.47208C19.3156 5.57434 19.2969 5.67595 19.2587 5.77081C19.2205 5.86567 19.1635 5.95185 19.0912 6.02417C19.0188 6.09649 18.9327 6.15347 18.8378 6.19169C18.7429 6.22992 18.6413 6.2486 18.5391 6.24662C18.4368 6.24465 18.336 6.22205 18.2427 6.18019C18.1494 6.13833 18.0655 6.07807 17.996 6.00301C17.2095 5.2144 16.2749 4.58905 15.2459 4.16293C14.2169 3.7368 13.1138 3.51831 12 3.52001C10.3228 3.52001 8.68329 4.01735 7.28876 4.94914C5.89424 5.88094 4.80733 7.20533 4.1655 8.75485C3.52367 10.3044 3.35574 12.0094 3.68294 13.6544C4.01014 15.2993 4.81779 16.8103 6.00373 17.9963C7.18968 19.1822 8.70068 19.9899 10.3456 20.3171C11.9906 20.6443 13.6956 20.4763 15.2452 19.8345C16.7947 19.1927 18.1191 18.1058 19.0509 16.7112C19.9827 15.3167 20.48 13.6772 20.48 12C20.48 11.7984 20.5601 11.6051 20.7026 11.4626C20.8451 11.3201 21.0384 11.24 21.24 11.24C21.4416 11.24 21.6349 11.3201 21.7774 11.4626C21.9199 11.6051 22 11.7984 22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.47701 6.477 2.00001 12 2.00001Z"/><path fill="currentColor" d="M12 5.69604C13.694 5.69604 15.283 6.36804 16.457 7.54204C16.5304 7.61194 16.589 7.69579 16.6295 7.78868C16.67 7.88156 16.6915 7.9816 16.6927 8.08292C16.694 8.18423 16.675 8.28477 16.6368 8.37863C16.5986 8.47248 16.5421 8.55775 16.4704 8.62943C16.3988 8.70111 16.3136 8.75775 16.2198 8.79601C16.126 8.83427 16.0255 8.85339 15.9241 8.85223C15.8228 8.85108 15.7228 8.82968 15.6298 8.78929C15.5369 8.7489 15.453 8.69034 15.383 8.61704C14.6005 7.83437 13.5707 7.34726 12.4693 7.23871C11.3678 7.13015 10.2628 7.40687 9.34246 8.02172C8.42215 8.63656 7.7435 9.55149 7.42214 10.6106C7.10078 11.6697 7.1566 12.8075 7.58008 13.8301C8.00356 14.8527 8.7685 15.6968 9.74457 16.2186C10.7206 16.7404 11.8474 16.9076 12.933 16.6918C14.0185 16.476 14.9957 15.8904 15.6979 15.0349C16.4001 14.1794 16.784 13.1068 16.784 12C16.784 11.7985 16.8641 11.6052 17.0066 11.4626C17.1492 11.3201 17.3425 11.24 17.544 11.24C17.7456 11.24 17.9389 11.3201 18.0814 11.4626C18.224 11.6052 18.304 11.7985 18.304 12C18.304 13.2469 17.9343 14.4657 17.2416 15.5024C16.5489 16.539 15.5644 17.347 14.4125 17.8242C13.2606 18.3013 11.9931 18.4262 10.7702 18.1829C9.54734 17.9397 8.42408 17.3393 7.54245 16.4576C6.66082 15.576 6.06042 14.4528 5.81718 13.2299C5.57394 12.007 5.69878 10.7395 6.17591 9.58761C6.65305 8.4357 7.46105 7.45115 8.49773 6.75846C9.53442 6.06577 10.7532 5.69604 12 5.69604Z"/><path fill="currentColor" d="M12.0001 9.39197C11.6576 9.39197 11.3185 9.45943 11.0021 9.59049C10.6856 9.72155 10.3981 9.91366 10.156 10.1558C9.91378 10.398 9.72168 10.6855 9.59061 11.0019C9.45955 11.3183 9.39209 11.6575 9.39209 12C9.39209 12.3425 9.45955 12.6816 9.59061 12.998C9.72168 13.3144 9.91378 13.6019 10.156 13.8441C10.3981 14.0863 10.6856 14.2784 11.0021 14.4094C11.3185 14.5405 11.6576 14.608 12.0001 14.608C12.6918 14.608 13.3551 14.3332 13.8442 13.8441C14.3333 13.355 14.6081 12.6917 14.6081 12C14.6081 11.3083 14.3333 10.6449 13.8442 10.1558C13.3551 9.66674 12.6918 9.39197 12.0001 9.39197ZM12.0001 10.912C12.2886 10.912 12.5654 11.0266 12.7694 11.2306C12.9735 11.4347 13.0881 11.7114 13.0881 12C13.0881 12.2885 12.9735 12.5653 12.7694 12.7693C12.5654 12.9733 12.2886 13.088 12.0001 13.088C11.7115 13.088 11.4348 12.9733 11.2308 12.7693C11.0267 12.5653 10.9121 12.2885 10.9121 12C10.9121 11.7114 11.0267 11.4347 11.2308 11.2306C11.4348 11.0266 11.7115 10.912 12.0001 10.912Z"/><path fill="currentColor" d="M19.2371 3.83502C19.3753 3.70234 19.5584 3.62672 19.7499 3.62329C19.9414 3.61986 20.1272 3.68888 20.27 3.81652C20.4128 3.94417 20.5022 4.12104 20.5202 4.31173C20.5382 4.50243 20.4835 4.69289 20.3671 4.84501L20.2981 4.92201L13.8311 11.232C13.693 11.3647 13.5098 11.4403 13.3183 11.4437C13.1268 11.4472 12.941 11.3782 12.7982 11.2505C12.6554 11.1229 12.566 10.946 12.548 10.7553C12.53 10.5646 12.5847 10.3741 12.7011 10.222L12.7711 10.145L19.2371 3.83502Z"/></svg>
+            </div><h3 class="feature-title">Flexible tickets</h3><p class="feature-body">Changed your mind? Change or cancel your ticket for free at any point before departure.</p></article>
+      </div>
+      <div class="features-footer"><a href="#" class="text-link">Read all FAQs &#x2192;</a></div>
+    </div>
+  </section>
+
+  <!-- MAP — raised surface -->
+  <section class="section-raised" aria-labelledby="map-heading">
+    <div class="section-inner">
+      <div class="two-col">
+        <div class="map-col-visual">
+          <div class="map-panel" aria-label="Illustrated Ember route map across Scotland">
+            <div class="map-bg">
+              <div class="map-grid" aria-hidden="true"></div>
+              <svg viewBox="0 0 240 290" style="width:80%;height:80%;position:relative;z-index:1;" aria-hidden="true">
+                <path d="M120 28 L120 82 L78 124 L58 172 L80 232" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="6 4" opacity=".5"/>
+                <path d="M120 82 L162 112 L180 152 L160 202" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="6 4" opacity=".5"/>
+                <path d="M78 124 L120 142 L162 112" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="6 4" opacity=".5"/>
+                <circle cx="120" cy="142" r="16" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".4"><animate attributeName="r" values="8;22;8" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".6;0;.6" dur="2.5s" repeatCount="indefinite"/></circle>
+                <circle cx="120" cy="28" r="5" fill="var(--accent)"/>
+                <text x="130" y="32" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Inverness</text>
+                <circle cx="78" cy="124" r="4" fill="var(--green)"/>
+                <text x="14" y="128" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Fort William</text>
+                <circle cx="162" cy="112" r="4" fill="var(--green)"/>
+                <text x="168" y="116" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Aberdeen</text>
+                <circle cx="120" cy="142" r="6" fill="var(--accent)"/>
+                <text x="130" y="146" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Dundee</text>
+                <circle cx="58" cy="172" r="4" fill="var(--green)"/>
+                <text x="8" y="176" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Oban</text>
+                <circle cx="180" cy="152" r="4" fill="var(--green)"/>
+                <text x="186" y="156" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Stirling</text>
+                <circle cx="80" cy="232" r="6" fill="var(--accent)"/>
+                <text x="88" y="236" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Glasgow</text>
+                <circle cx="160" cy="202" r="6" fill="var(--accent)"/>
+                <text x="168" y="206" font-family="Montserrat,sans-serif" font-size="9" font-weight="600" fill="var(--text-2)">Edinburgh</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="map-col-text">
+          <p class="eyebrow">Live map</p>
+          <h2 class="section-h" id="map-heading">Track your bus<br>in real-time</h2>
+          <p class="section-p">Routes between Dundee, Aberdeen, Edinburgh, Glasgow, Oban, Fort William and Inverness with stops at towns and villages in between. Direct services to Edinburgh, Glasgow and Aberdeen airports.</p>
+          <p class="section-p">Track your bus with our live map so you always know how long you have to wait.</p>
+          <a href="#" class="map-cta" aria-label="View the live Ember bus map">
+            View the live map
+            <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer aria-label="Site footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <span class="footer-logo">ember</span>
+        <p class="footer-tagline">The UK's first all-electric intercity bus service. Comfortable, affordable and zero emissions across Scotland.</p>
+      </div>
+      <div>
+        <p class="footer-col-title">Company</p>
+        <ul class="footer-links"><li><a href="#">News</a></li><li><a href="#">Careers</a></li><li><a href="#">Coach hire</a></li><li><a href="#">Charging</a></li></ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Support</p>
+        <ul class="footer-links"><li><a href="#">FAQ</a></li><li><a href="#">Contact us</a></li><li><a href="#">Live map</a></li><li><a href="#">Accessibility</a></li></ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Legal</p>
+        <ul class="footer-links"><li><a href="#">Privacy policy</a></li><li><a href="#">Cookie policy</a></li><li><a href="#">Terms of carriage</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-legal">&#169; 2025 Ember. All rights reserved.</p>
+      <div class="footer-social" aria-label="Social media">
+        <a href="https://www.facebook.com/RideEmber/" class="social-btn" aria-label="Facebook" target="_blank" rel="noopener">f</a>
+        <a href="https://x.com/RideEmber" class="social-btn" aria-label="X" target="_blank" rel="noopener">X</a>
+        <a href="https://www.linkedin.com/company/rideember/" class="social-btn" aria-label="LinkedIn" target="_blank" rel="noopener">in</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  var html = document.documentElement;
+
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('ember-theme', theme);
+    var isDark = theme === 'dark';
+    document.getElementById('toggleLabel').textContent = isDark ? 'Dark' : 'Light';
+    document.getElementById('toggleLabelMobile').textContent = isDark ? 'Dark' : 'Light';
+    document.getElementById('themeToggle').setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    document.getElementById('themeToggleMobile').setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
+  var stored = localStorage.getItem('ember-theme');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+
+  document.getElementById('themeToggle').addEventListener('click', function() {
+    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+  document.getElementById('themeToggleMobile').addEventListener('click', function() {
+    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  var burger = document.getElementById('navBurger');
+  var drawer = document.getElementById('navDrawer');
+  burger.addEventListener('click', function() {
+    var open = drawer.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+    drawer.setAttribute('aria-hidden', !open);
+  });
+  document.addEventListener('click', function(e) {
+    if (!burger.contains(e.target) && !drawer.contains(e.target)) {
+      drawer.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+      drawer.setAttribute('aria-hidden', 'true');
+    }
+  });
+</script>
+</body>
+</html>

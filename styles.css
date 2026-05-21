@@ -1,0 +1,229 @@
+/* ==============================================
+   EMBER PORTFOLIO — SHARED STYLESHEET
+   styles.css — v1.0
+   Tokens, reset, skip link, nav, buttons
+   ============================================== */
+
+/* =============================================
+   TOKENS — DARK
+   ============================================= */
+[data-theme="dark"] {
+  --bg:           #1A1A1A;
+  --bg-raised:    #222222;
+  --bg-overlay:   #2A2A2A;
+  --border:       #363636;
+
+  --green:        #6DB39A;
+  --green-hover:  #89B5A6;
+  --green-light:  #C6DAD3;
+  --green-tint:   rgba(109,179,154,0.08);
+  --green-on:     #1A1A1A;
+
+  --accent:       #E8D87A;
+  --accent-hover: #D4C45E;
+
+  --text-1:       #EBF0EE;
+  --text-2:       #B0BAB5;
+  --text-3:       #99A39F;
+
+  --link:         #89B5A6;
+  --link-hover:   #C6DAD3;
+}
+
+/* =============================================
+   TOKENS — LIGHT
+   ============================================= */
+[data-theme="light"] {
+  --bg:           #FEFEFE;
+  --bg-raised:    #F7F7F7;
+  --bg-overlay:   #EBF0EE;
+  --border:       #CFD9D4;
+
+  --green:        #3A6B5A;
+  --green-hover:  #2D5446;
+  --green-light:  #89B5A6;
+  --green-tint:   #EAF3EF;
+  --green-on:     #FEFEFE;
+
+  --accent:       #3579AD;
+  --accent-hover: #2C6598;
+
+  --text-1:       #1C1F1E;
+  --text-2:       #485250;
+  --text-3:       #6A716E;
+
+  --link:         #3A6B5A;
+  --link-hover:   #2D5446;
+}
+
+/* =============================================
+   RESET & BASE
+   ============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  transition: background 400ms ease, color 400ms ease;
+}
+
+[data-theme="dark"]  { background: #1A1A1A; color: #EBF0EE; }
+[data-theme="light"] { background: #FEFEFE; color: #1C1F1E; }
+
+a { color: var(--link); text-decoration: none; transition: color 150ms ease; }
+a:hover { color: var(--link-hover); }
+img { display: block; max-width: 100%; }
+
+/* =============================================
+   SKIP LINK
+   ============================================= */
+.skip {
+  position: fixed; top: -100%; left: 16px; z-index: 9999;
+  background: var(--green); color: var(--green-on);
+  padding: 12px 20px; border-radius: 8px;
+  font-size: .875rem; font-weight: 600;
+  transition: top 150ms ease;
+}
+.skip:focus { top: 16px; }
+
+/* =============================================
+   NAV — child pages (back arrow variant)
+   ============================================= */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  height: 60px; display: flex; align-items: center;
+  padding: 0 32px; gap: 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 400ms ease, border-color 400ms ease;
+}
+[data-theme="dark"]  .nav { background: rgba(26,26,26,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+[data-theme="light"] .nav { background: rgba(254,254,254,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+.nav-back {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: .8125rem; font-weight: 600; color: var(--text-3);
+  text-decoration: none; transition: color 150ms ease;
+}
+.nav-back:hover { color: var(--green); }
+.nav-back:hover svg { transform: translateX(-3px); }
+.nav-back svg { transition: transform 150ms ease; }
+
+.nav-divider { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
+
+.nav-title {
+  font-size: .8125rem; font-weight: 700;
+  color: var(--text-2); flex: 1;
+}
+
+.nav-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+/* =============================================
+   THEME TOGGLE
+   ============================================= */
+.theme-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: none; border: 1px solid var(--border);
+  border-radius: 100px; padding: 6px 10px 6px 6px;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: border-color 150ms ease;
+}
+.theme-btn:hover { border-color: var(--green); }
+.theme-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+.theme-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  position: relative; overflow: hidden;
+  transition: background 400ms ease;
+}
+[data-theme="dark"]  .theme-icon { background: #2A2A2A; }
+[data-theme="light"] .theme-icon { background: #EBF0EE; }
+
+.t-ico {
+  position: absolute; width: 12px; height: 12px;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.t-sun  { color: #8A7A55; }
+.t-moon { color: #5E8070; }
+[data-theme="dark"]  .t-sun  { opacity: 0; transform: scale(.5) rotate(90deg); }
+[data-theme="dark"]  .t-moon { opacity: 1; transform: scale(1); }
+[data-theme="light"] .t-sun  { opacity: 1; transform: scale(1); }
+[data-theme="light"] .t-moon { opacity: 0; transform: scale(.5) rotate(-90deg); }
+
+.theme-text {
+  font-size: .6875rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* =============================================
+   PAGE KICKER / EYEBROW
+   ============================================= */
+.page-kicker {
+  font-size: .6875rem; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.page-kicker::before {
+  content: ''; display: block;
+  width: 24px; height: 2px;
+  background: var(--green); border-radius: 1px;
+}
+
+/* =============================================
+   SHARED BUTTONS
+   ============================================= */
+.btn-primary {
+  font-family: 'Montserrat', sans-serif;
+  font-size: .875rem; font-weight: 700; letter-spacing: .02em;
+  background: var(--green); color: var(--green-on);
+  border: none; border-radius: 100px;
+  padding: 13px 26px; cursor: pointer;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+.btn-primary:hover {
+  background: var(--green-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  color: var(--green-on);
+}
+.btn-primary:active { transform: none; }
+.btn-primary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.btn-ghost {
+  font-family: 'Montserrat', sans-serif;
+  font-size: .875rem; font-weight: 600;
+  background: transparent; color: var(--link);
+  border: 1.5px solid var(--border); border-radius: 100px;
+  padding: 13px 26px; cursor: pointer;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.btn-ghost:hover { border-color: var(--green); color: var(--link-hover); }
+.btn-ghost:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.btn-group { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* =============================================
+   SHARED RESPONSIVE UTILITIES
+   ============================================= */
+@media (max-width: 640px) {
+  .nav { padding: 0 20px; }
+  .nav-title { display: none; }
+  .btn-group { flex-direction: column; }
+  .btn-primary, .btn-ghost { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

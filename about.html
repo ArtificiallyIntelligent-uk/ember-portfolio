@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Kym Primrose</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script>
+  (function() {
+    var stored = localStorage.getItem('ember-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+  })();
+</script>
+<style>
+/* =============================================
+   PAGE LAYOUT
+   ============================================= */
+.page { max-width: 800px; margin: 0 auto; padding: 72px 24px 120px; }
+
+/* =============================================
+   PAGE HEADER
+   ============================================= */
+.page-header { margin-bottom: 80px; }
+
+.page-kicker {
+  font-size: .6875rem; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--green); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.page-kicker::before {
+  content: ''; display: block;
+  width: 24px; height: 2px; background: var(--green); border-radius: 1px;
+}
+
+.page-title {
+  font-size: clamp(2rem, 5vw, 3rem); font-weight: 800;
+  line-height: 1.08; letter-spacing: -.03em; color: var(--text-1);
+  margin-bottom: 20px;
+}
+.page-title .accent { color: var(--accent); }
+
+/* =============================================
+   SECTION STRUCTURE
+   ============================================= */
+.about-section { margin-bottom: 88px; }
+
+.section-number {
+  font-size: .625rem; font-weight: 800; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+}
+.section-number::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.section-title {
+  font-size: clamp(1.25rem, 3vw, 1.75rem); font-weight: 800;
+  letter-spacing: -.02em; line-height: 1.15; color: var(--text-1);
+  margin-bottom: 24px;
+}
+.section-title .accent { color: var(--accent); }
+
+.body-text {
+  font-size: 1rem; color: var(--text-2); line-height: 1.8;
+  max-width: 62ch; margin-bottom: 20px;
+}
+.body-text:last-of-type { margin-bottom: 0; }
+.body-text strong { color: var(--text-1); font-weight: 700; }
+
+/* Pull quote */
+.pull-quote {
+  border-left: 2px solid var(--green);
+  padding: 4px 0 4px 20px;
+  margin: 28px 0;
+  font-size: 1.0625rem; font-style: italic;
+  color: var(--text-2); line-height: 1.7; max-width: 56ch;
+}
+.pull-quote cite {
+  display: block; margin-top: 8px;
+  font-size: .75rem; font-style: normal; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--text-3);
+}
+
+/* =============================================
+   PHOTO + BIO SPLIT — personal section
+   ============================================= */
+.bio-split {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.photo-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.intro {
+  max-width: 80%;
+  font-style: italic;
+}
+
+/* =============================================
+   TRAIT TAGS — neurodivergent / approach tags
+   ============================================= */
+.trait-tags {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 28px;
+}
+.trait-tag {
+  font-size: .6875rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 6px 12px; border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  transition: border-color 400ms ease, background 400ms ease;
+}
+.trait-tag.green {
+  background: var(--green-tint);
+  border-color: rgba(109,179,154,.2);
+  color: var(--green);
+}
+[data-theme="light"] .trait-tag.green { border-color: rgba(58,107,90,.2); }
+
+/* =============================================
+   EMPLOYMENT HISTORY
+   ============================================= */
+.timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 48px; }
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.timeline-item:first-child { border-top: 1px solid var(--border); }
+
+.timeline-date {
+  font-size: .75rem; font-weight: 700;
+  letter-spacing: .06em; color: var(--text-3);
+  padding-top: 2px;
+}
+.timeline-content {}
+.timeline-role {
+  font-size: .9375rem; font-weight: 700;
+  color: var(--text-1); margin-bottom: 3px; line-height: 1.3;
+}
+.timeline-company {
+  font-size: .8125rem; font-weight: 600;
+  color: var(--green); margin-bottom: 6px;
+}
+.timeline-desc {
+  font-size: .8125rem; color: var(--text-2); line-height: 1.65; max-width: 52ch;
+}
+
+/* =============================================
+   WORK EXAMPLES
+   ============================================= */
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 4px;
+}
+
+.work-card {
+  border: 1px solid var(--border); border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  display: flex; flex-direction: column;
+  transition: border-color 250ms ease, box-shadow 250ms ease, background 400ms ease;
+}
+[data-theme="dark"]  .work-card { background: #222222; }
+[data-theme="light"] .work-card { background: #F4F7F6; }
+.work-card:hover {
+  border-color: var(--green);
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  transform: translateY(-2px);
+}
+.work-card:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.work-image {
+  /*aspect-ratio: 16/10; width: 100%;*/
+  display: grid; place-items: center;
+  position: relative; overflow: hidden;
+  transition: background 400ms ease;
+}
+[data-theme="dark"]  .work-image { background: #2A2A2A; }
+[data-theme="light"] .work-image { background: #EBF0EE; }
+
+/* Placeholder pattern */
+.work-image::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 20px,
+    rgba(109,179,154,.04) 20px,
+    rgba(109,179,154,.04) 21px
+  );
+}
+[data-theme="light"] .work-image::before {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 20px,
+    rgba(58,107,90,.04) 20px,
+    rgba(58,107,90,.04) 21px
+  );
+}
+
+.work-image { background: none; }
+.work-image img { width:100%; height:100%; object-fit:cover; }
+.work-image::before { display: none; }
+
+
+.work-body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+.work-type {
+  font-size: .625rem; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--green);
+}
+.work-title {
+  font-size: .9375rem; font-weight: 700;
+  color: var(--text-1); line-height: 1.3;
+}
+.work-desc {
+  font-size: .8125rem; color: var(--text-2); line-height: 1.6;
+  margin-top: 2px; flex: 1;
+}
+.work-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .75rem; font-weight: 700;
+  letter-spacing: .04em; color: var(--link);
+  margin-top: 10px;
+  transition: color 150ms ease;
+}
+.work-card:hover .work-link { color: var(--link-hover); }
+.work-link svg { transition: transform 150ms ease; }
+.work-card:hover .work-link svg { transform: translateX(3px); }
+
+/* =============================================
+   WRITING LINKS
+   ============================================= */
+.writing-list { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+.writing-item {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px; padding: 14px 0;
+  border-bottom: 1px solid var(--border); text-decoration: none;
+  transition: color 150ms ease;
+}
+.writing-item:first-child { border-top: 1px solid var(--border); }
+.writing-item:hover .writing-title { color: var(--link-hover); }
+
+.writing-title {
+  font-size: .9375rem; font-weight: 600;
+  color: var(--text-1); line-height: 1.3;
+  transition: color 150ms ease;
+}
+.writing-meta { font-size: .75rem; color: var(--text-3); flex-shrink: 0; }
+
+.btn-primary, .space {
+        gap: 16px;
+        margin-top: 1rem;
+    }
+
+.btn-ghost, .space {
+        gap: 16px;
+        margin-top: 1rem;
+    }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 640px) {
+  .page { padding: 48px 20px 80px; }
+  .bio-split { grid-template-columns: 1fr; }
+  .photo-placeholder { width: 140px; height: 140px; }
+  .photo-initials { font-size: 1.75rem; }
+  .timeline-item { grid-template-columns: 1fr; gap: 4px; }
+  .timeline-date { font-size: .6875rem; }
+  .works-grid { grid-template-columns: 1fr; }
+  .nav { padding: 0 20px; }
+  .nav-title { display: none; }
+  
+  .btn-primary,
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<!-- NAV -->
+<header>
+  <nav class="nav" aria-label="Page navigation">
+    <a href="index.html" class="nav-back" aria-label="Back to portfolio home">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <span class="nav-title">About Kym</span>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeToggle" aria-label="Switch to light mode">
+        <div class="theme-icon" aria-hidden="true">
+          <svg class="t-ico t-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="t-ico t-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <span class="theme-text" id="themeLabel">Dark</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- MAIN -->
+<main id="main">
+<div class="page">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <p class="page-kicker">About me</p>
+    <h1 class="page-title">Kym Primrose.<br><span class="accent">Designer. Thinker. Experience Advocate.</span></h1>
+  </div>
+
+
+  <!-- ==========================================
+       01 PERSONAL BACKGROUND
+       ========================================== -->
+  <section class="about-section" aria-labelledby="personal-heading">
+    <p class="section-number">01</p>
+    <h2 class="section-title" id="personal-heading">Who I am</h2>
+
+    <div class="bio-split">
+      <div class="photo-placeholder" role="img" aria-label="Photo of Kym Primrose">
+        <img src="assets/profile.jpg" alt="Kym Primrose">
+      </div>
+      <div>
+        <p class="body-text intro">
+          I am Kym Primrose, an experience designer with over 15 years of working knowledge behind me.
+        </p>
+      </div>
+    </div>
+
+    <p class="body-text">
+          My work and interests tend to span multiple disciplines associated with human behaviour, lived experience, user experience and accessibilty. I hold an undergraduate in Computer Arts, a MSC in Interaction Design and have since held in-house, agency and freelance roles. My own personal experience of neurodiversity has lead to a deep understanding of the true meaning of accessiblity and in particular, contextual disabilty. 
+     </p>
+
+    <p class="body-text">
+      Creativity has been a constant. Starting with drawing and illustration, expanding into graphic design, and eventually settling on user experience and human-computer interaction. The common thread across all of this is a genuine curiosity about how people interact with things, how the wider environment can shape experience and how accessibility is contextual.
+    </p>
+
+    <p class="body-text">
+      Outside of design, writing and sharing my thoughts has become a meaningful part of my life. The focus tends to land on the intersection of human behaviour, technology, philosophy and ethics. Particularly around AI and what we risk losing if we hand too much of the creative process to systems that replicate rather than understand.
+    </p>
+
+    <p class="body-text">
+      There is a fine balance between AI as an accelerant and AI as FOMO (fear of missing out) integration.
+      Just because you can, does not always mean you should.
+    </p>
+
+    <div class="pull-quote" role="blockquote">
+      "If we want AI to enhance our work rather than replace the heart of it, we’ve got to be intentional, we’ve got to be aware of what we’re doing. Shneiderman’s Prometheus Principles make this clear: high automation can support creativity and oversight, if we build it that way."
+      <cite>— Kym Primrose, UX Collective, 2025</cite>
+    </div>
+
+    <div class="trait-tags" aria-label="Key traits and approaches">
+      <span class="trait-tag green">Neurodivergent</span>
+      <span class="trait-tag green">Accessibility</span>
+      <span class="trait-tag green">Systems thinker</span>
+      <span class="trait-tag">Dunblane, Scotland</span>
+      <span class="trait-tag">Artist &amp; illustrator</span>
+      <span class="trait-tag">Published writer</span>
+    </div>
+  </section>
+
+
+  <!-- ==========================================
+       02 PROFESSIONAL BACKGROUND
+       ========================================== -->
+  <section class="about-section" aria-labelledby="professional-heading">
+    <p class="section-number">02</p>
+    <h2 class="section-title" id="professional-heading">My <span class="accent">journey</span></h2>
+
+    <p class="body-text">
+      My professional journey has moved between freelance, in-house and agency roles, across large corporations and start-ups. This exposure means I am familiar with office politics, the reality of product design and the constraints that come with each environment.
+    </p>
+    <p class="body-text">
+      I started as a traditional artist using traditional mediums, transitioning into my first role with <strong>NCR</strong> as a UI designer, pushing into digital product territory, with all the constraints and rigour that comes with designing at scale for real users within the R&D devision of a large corporation. I then started my own freelance practice <strong>Designed by Kym</strong>, focusing on a wide mix of art, product and graphic design eventually leading to my role as UX designer for 3D mapping company <strong>WRLD.</strong> WRLD focused on digital twins and office booking systems for clients like Heathrow Airport and Bloomberg. I then moved on to a UX role at <strong>Vidatec</strong>, a software design agency when I have worked in almost every sector. I’ve worked with clients like Saga, the NHS, Crystal Ski and most recently the MOD. It is with Vidatec that I moved from UX design to a hybrid Product Owner and UX Strategist role.
+    </p>
+    <p class="body-text">
+      My working relationship with AI as a tool is intentional and considered. I am knowledgable about the systems behind LLM agents, how they gather and interpret data and how impactful they are on the environment. This is why I believe that it’s important to know when to utilise AI and when to rely on more traditntal methods. I am absolutely pro-AI but there is a balance requiresd to be able to utilise it sustainably.</p>
+
+    <div class="trait-tags" aria-label="Skills and disciplines">
+      <span class="trait-tag green">UX / UI design</span>
+      <span class="trait-tag green">Accessibility — WCAG 2.2</span>
+      <span class="trait-tag green">Design systems</span>
+      <span class="trait-tag">Brand &amp; visual identity</span>
+      <span class="trait-tag">Illustration</span>
+      <span class="trait-tag">AI-literate, not AI-dependent</span>
+      <span class="trait-tag">Research &amp; strategy</span>
+    </div>
+  </section>
+
+
+  <!-- ==========================================
+       03 EMPLOYMENT + WORK
+       ========================================== -->
+  <section class="about-section" aria-labelledby="experience-heading">
+    <p class="section-number">03</p>
+    <h2 class="section-title" id="experience-heading">Experience &amp; <span class="accent">selected work</span></h2>
+
+    <!-- Employment timeline -->
+    <div class="timeline" role="list" aria-label="Employment history">
+
+      <div class="timeline-item" role="listitem">
+        <span class="timeline-date">Current</span>
+        <div class="timeline-content">
+          <p class="timeline-role">UX / UI Designer</p><p class="timeline-role">Product Owner & Experience Strategist</p>
+          <p class="timeline-company">Vidatec</p>
+          <p class="timeline-desc">End-to-end design across brand identity, digital product, and UX strategy. Clients across commercial and not-for-profit sectors. Exposure to product management, resouce planning and project documenation.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item" role="listitem">
+        <span class="timeline-date">Prior</span>
+        <div class="timeline-content">
+          <p class="timeline-role">UX / UI Designer</p>
+          <p class="timeline-company">WRLD</p>
+          <p class="timeline-desc">Digital product and UI design within a start-up company. Exposure to high-profile clients and cutting edge technology integration.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item" role="listitem">
+        <span class="timeline-date">Prior</span>
+        <div class="timeline-content">
+          <p class="timeline-role">Founder &amp; Lead Designer</p>
+          <p class="timeline-company">Designed by Kym &mdash; Independent practice</p>
+          <p class="timeline-desc">Brand identity, commission based art, graphic design and digital product design. Exposure to buisness management and client communication.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item" role="listitem">
+        <span class="timeline-date">Prior</span>
+        <div class="timeline-content">
+          <p class="timeline-role">Graphic / UI Designer</p>
+          <p class="timeline-company">NCR &mdash; United Kingdom</p>
+          <p class="timeline-desc">Digital product and UI design within a large-scale technology environment. Exposure to high-volume, user-centred design processes and cross-functional delivery teams.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Selected work -->
+    
+    <h3 style="font-size:.875rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin-bottom:20px;">Selected work and writing</h3>
+
+    <div class="works-grid">
+
+      <div>
+        <a href="#" class="work-card" aria-label="https://ekatool.scottishrenewables.com/">
+          <div class="work-image">
+            <img src="assets/industry-tool.png" alt="Image of Eskdalemuir Seismic Budget Calculation Tool">
+          </div>
+          <div class="work-body">
+            <span class="work-type">UX / UI / Product Owner</span>
+            <p class="work-title">Eskdalemuir
+Seismic Budget Calculation Tool</p>
+            <p class="work-desc">This latest project was a calculator which allows wind farm developers near the Eskdalemuir Seismic Array to sandbox site planning whilst gaining an indication of the seismic output of their proposed plan. I was responsible for holding product workshops with the client and industry stakeholders, the end to end design process and project management.</p>
+            <span class="work-link">
+            View project
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <div>
+        <a href="https://uxdesign.cc/ai-wont-kill-ux-we-will-6ab68db1f1e3" class="writing-item" target="_blank" rel="noopener" aria-label="Read: AI won't kill UX — we will, on UX Collective">
+          <span class="writing-title">AI won't kill UX &mdash; we will</span>
+          <span class="writing-meta">UX Collective &nbsp;&middot;&nbsp; 2025</span>
+        </a>
+        <a href="https://medium.com/@kymprimrose91/would-you-like-python-with-that-575211de7b6e" class="writing-item" target="_blank" rel="noopener" aria-label="Read: Would you like Python with that?, on Medium">
+          <span class="writing-title">Would you like Python with that?</span>
+          <span class="writing-meta">Medium &nbsp;&middot;&nbsp; Apr 2026</span>
+        </a>
+        <a href="https://medium.com/@kymprimrose91/whats-philosophy-got-to-do-with-it-10309364285c" class="writing-item" target="_blank" rel="noopener" aria-label="Read: Beyond Human — Building for Inclusive Communication, on Medium">
+          <span class="writing-title">What's Philosophy Got To Do With It?</span>
+          <span class="writing-meta">Medium &nbsp;&middot;&nbsp; Jul 2025</span>
+        </a>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <p class="closing-text">
+      This site was built as part of an application for the designer role at Ember. <strong>The Ember case study and a live homepage redesign</strong> are also available to explore.
+    </p>
+    <div class="btn-group">
+      <a href="case-study.html" class="btn-primary space">
+        View case study
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="index.html" class="btn-ghost space">Back to portfolio</a>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<script>
+  var html = document.documentElement;
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('ember-theme', theme);
+    var isDark = theme === 'dark';
+    document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
+    document.getElementById('themeToggle').setAttribute('aria-label',
+      isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  var stored = localStorage.getItem('ember-theme');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(stored || (prefersDark ? 'dark' : 'light'));
+  document.getElementById('themeToggle').addEventListener('click', function() {
+    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+</script>
+
+</body>
+</html>
